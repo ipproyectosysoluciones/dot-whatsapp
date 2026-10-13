@@ -1,0 +1,28 @@
+{
+	"name": "dot-whatsapp",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Opt-in WhatsApp bridge for the Gentle Dot assistant (prototype)",
+	"type": "module",
+	"packageManager": "pnpm@11.5.0",
+	"engines": {
+		"node": ">=22.18"
+	},
+	"scripts": {
+		"start": "node src/main.ts",
+		"start:env": "node --env-file=.env src/main.ts",
+		"test": "vitest run",
+		"typecheck": "tsc --noEmit"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"@whiskeysockets/baileys": "^6.7.18",
+		"ws": "^8.22.0"
+	},
+	"devDependencies": {
+		"@types/node": "^26.6.5",
+		"@types/ws": "^8.18.2",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.3"
+	}
+}
