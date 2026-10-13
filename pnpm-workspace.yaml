@@ -1,0 +1,3 @@
+onlyBuiltDependencies:
+  - libsignal-node
+  - protobufjs
