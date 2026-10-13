@@ -1,11 +1,13 @@
 import { homedir } from "node:os";
+import { Bridge } from "./bridge.ts";
 import { ConfigError, loadConfig } from "./config.ts";
 import { DaemonClient } from "./daemon-client.ts";
 import { createEngramStore } from "./engram-store.ts";
+import { createBaileysTransport } from "./whatsapp.ts";
 
 const log = (message: string) => console.error(`[dot-whatsapp] ${message}`);
 
-function main(): void {
+async function main(): Promise<void> {
 	let config: ReturnType<typeof loadConfig>;
 	try {
 		config = loadConfig(process.env, homedir());
@@ -19,29 +21,52 @@ function main(): void {
 		log(`unexpected error: ${(error as Error)?.message ?? String(error)}`),
 	);
 
-	// The bridge DB: idempotency + allowlist + liveness notes live in Engram.
-	const store = createEngramStore({ url: config.engramUrl, project: config.engramProject, log });
-	void store;
+	// The bridge DB: idempotency + liveness notes live in Engram. Fails closed if the CLI is absent.
+	const store = createEngramStore({ project: config.engramProject, log });
+	try {
+		await store.remember(
+			"boot",
+			"dot-whatsapp bridge started",
+			"**What**: bridge process booted (allowlist armed, daemon client connecting).",
+		);
+	} catch (error) {
+		log(`Engram is unreachable; refusing to relay without idempotency: ${(error as Error).message}`);
+		process.exit(1);
+	}
 
-	// TODO(T-spike): const transport = createBaileysTransport({ authDir: config.authDir, log });
-	// TODO(T-bridge): const bridge = new Bridge({ transport, daemon, store, allowedNumbers: config.allowedNumbers, log });
+	const transport = createBaileysTransport({
+		authDir: config.authDir,
+		allowedNumbers: config.allowedNumbers,
+		log,
+	});
+	let bridge: Bridge;
 	const daemon = new DaemonClient({
 		url: config.daemonUrl,
 		tokenFile: config.tokenFile,
 		log,
-		onMessage: () => {},
+		onMessage: (message) => void bridge?.handleDaemon(message),
+		onConnection: (connected) => {
+			log(connected ? "connected to Gentle Dot" : "disconnected from Gentle Dot, retrying");
+			if (!connected) void bridge?.connectionLost();
+		},
 		onFatal: (reason) => {
 			log(reason);
-			process.exit(1);
+			void transport.stop().finally(() => process.exit(1));
 		},
 	});
-	void daemon;
+	bridge = new Bridge({ transport, daemon, store, allowedNumbers: config.allowedNumbers, log });
+	transport.onMessage((message) => void bridge.onInbound(message));
 
-	const shutdown = () => process.exit(0);
+	const shutdown = () => {
+		daemon.stop();
+		void transport.stop().finally(() => process.exit(0));
+	};
 	process.once("SIGINT", shutdown);
 	process.once("SIGTERM", shutdown);
 
-	log("scaffold up: config loads; transport and bridge land in T-spike / T-bridge");
+	daemon.start();
+	await transport.start();
+	log(`listening; ${config.allowedNumbers.size} allowlisted number(s), auth dir: ${config.authDir}`);
 }
 
-main();
+void main();
