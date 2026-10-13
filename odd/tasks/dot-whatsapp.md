@@ -14,8 +14,8 @@ Engram mirror topic: `dot-whatsapp-study`
 ## Tasks
 
 - [x] T1 Scaffold: package, tsconfig, config.ts (E.164 allowlist), copied daemon-client/protocol, ChannelTransport interface, Engram stub, README; **pnpm via corepack** (packageManager pinned 11.5.0; npm artifacts removed 2026-10-13 per L6). tsc clean, vitest 3/3 green.
-- [ ] T2 Ownership decision: local-git vs new GitHub repo ipproyectosysoluciones/dot-whatsapp (user decision — like dot-telegram standalone).
-- [ ] T3 Issue draft for gentle-dot (WhatsApp channel, dual provider, links study) → user OK → publish; reference #48 as sibling.
+- [x] T2 Ownership: repo remoto creado **ipproyectosysoluciones/dot-whatsapp** (privado, estilo dot-telegram standalone) + push inicial — 2026-10-13; trabajo dual local+remoto (L7).
+- [x] T3 Issue publicada: [gentle-dot#65](https://github.com/Gentleman-Programming/gentle-dot/issues/65) (2026-10-13, aprobada por el usuario tal cual el borrador; referencia #48).
 - [ ] T4 T-spike: Baileys QR pairing on test number, echo round-trip via real WhatsApp (evidence captured).
 - [ ] T5 T-bridge: inbound → daemon `send` → answer → `sendText` back; allowlist + anti-loop + Engram idempotency; offline tests (mirror dot-telegram's 88-test style).
 - [ ] T6 systemd unit `dot-whatsapp.service` + runbook.
@@ -29,3 +29,5 @@ Engram mirror topic: `dot-whatsapp-study`
 - **L4 (2026-10-13, decision):** develop in fork-style own repo first, formal integration via issue-first + PR after status:approved; no informal pre-consult (CONTRIBUTING already answers it; #48 precedent: prototype first, then propose with evidence).
 - **L5 (2026-10-13, user philosophy):** "un proyecto se basa en estar bien claro en la documentación y arquitectura… funcionalidad y qué resuelva un problema… la aceptación esta en la funcionalidad" — spike evidence is the acceptance bar.
 - **L6 (2026-10-13, user):** "utilicemos pnpm, es más debe de estar como corepack global" — package manager: corepack pnpm, packageManager field pinned in package.json; never npm/npx in this repo.
+- **L7 (2026-10-13, user):** "abrir la repo nueva… trabajaremos en ambas, local y remoto" — repo github.com/ipproyectosysoluciones/dot-whatsapp (private), remote origin, initial commit 237a99c pushed; work local + remote from now on.
+- **L8 (2026-10-13):** issue #65 published at Gentleman-Programming/gentle-dot (user approved the draft as-is). Tracking note mirrored in Obsidian vault belzebuth: `Gentleman/Seguimiento-issues.md` + `Gentleman/Propuesta — dot-whatsapp.md`. Next blocked item: T4 Baileys spike needs the user to scan a QR with a test number.
