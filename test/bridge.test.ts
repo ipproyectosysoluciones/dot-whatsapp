@@ -49,7 +49,7 @@ describe("bridge: inbound safety", () => {
 		expect(daemon.messages).toEqual([
 			{ type: "send", text: expect.stringContaining("hola dot") },
 		]);
-		expect((daemon.messages[0] as { text: string }).text).toMatch(/^\[dot-whatsapp\]/);
+		expect((daemon.messages[0] as { text: string }).text).toMatch(/^📱 \[dot-whatsapp\]/);
 		expect(sent).toEqual([]);
 	});
 

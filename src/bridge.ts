@@ -11,7 +11,7 @@ import type { ChannelTransport } from "./whatsapp.ts";
 export const WHATSAPP_TEXT_LIMIT = 4000;
 
 /** Every message relayed to the daemon is tagged so the assistant knows its origin. */
-const SOURCE_LABEL = "[dot-whatsapp] ";
+const SOURCE_LABEL = "📱 [dot-whatsapp] ";
 
 /** Daemon errors that refuse a `send`; others leave the turn open. */
 const SEND_REFUSALS = new Set(["no_account", "agent_unavailable", "command_failed", "unsupported"]);
