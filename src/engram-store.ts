@@ -43,7 +43,9 @@ export function createEngramStore(options: EngramOptions): EngramLike {
 	return {
 		async seen(topicKey) {
 			const { stdout } = await exec(["search", topicKey, "--match", "all", "--limit", "1"]);
-			// The CLI prints "No memories found" (or nothing) when the topic key is absent.
+			// The CLI echoes the query back inside "No memories found for: <query>", so a plain
+			// includes(topicKey) always wins — check the negative marker first.
+			if (stdout.includes("No memories found")) return false;
 			return stdout.includes(topicKey);
 		},
 		async remember(topicKey, title, content) {

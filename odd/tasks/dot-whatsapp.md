@@ -19,7 +19,7 @@ Engram mirror topic: `dot-whatsapp-study`
 - [x] T4 T-spike (2026-10-13, commit head on main): Baileys QR pairing into a dedicated test number + echo round-trip VERIFIED live (inbound "Hola dot" → echoed, msg-ACB5B33...). Pin baileys@6.7.24 (GHSA-qvv5-jq5g-4cgg flags 6.7.18); pnpm 11 build approvals live in pnpm-workspace.yaml; inbound filtering uses isJidUser/isLidUser.
 - [x] T5 T-bridge (2026-10-13, commits en main): bridge.ts (allowlist E.164, /stop, deflexión busy, asks confirm/select/input por número, splits, label `[dot-whatsapp]`, idempotencia Engram `msg-<id>`), main.ts cableado (store Engram por CLI, fail-closed sin idempotencia; daemon client WS; transporte Baileys con jid real por remitente), test/bridge.test.ts 9 casos offline. tsc limpio, vitest 13/13.
   - **E2E EN VIVO ✅ 2026-10-13**: "hola, decime la hora y saludame" desde el personal allowlisted → daemon → asistente respondió en WhatsApp Y en la app gentle-dot. Dedup post-reconexión (code 500) verificado (`ignored: duplicate msg-…`). Fallo intermedio válido: `Agent is not ready` sin agente activo en la app.
-- [ ] T6 systemd unit `dot-whatsapp.service` + runbook.
+- [x] T6 systemd unit `~/.config/systemd/user/dot-whatsapp.service` (user-mode + linger, sin root) + docs/RUNBOOK.md — commit da500a8. Falta: usuario crea .env con su número (policy agente: no escribir .env), luego enable --now.
 - [ ] T7 Extract `ChannelTransport` from the working Baileys impl; stub `meta-cloud` provider skeleton (Cloud API webhook notes) — proves S1 seam. PR to upstream only after issue approval.
 
 ## Log
