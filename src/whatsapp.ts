@@ -28,7 +28,8 @@ export interface ChannelTransport {
 }
 
 import { mkdirSync, chmodSync } from "node:fs";
-import { isJidUser, isLidUser } from "@whiskeysockets/baileys";
+import { isJidUser, isLidUser, DisconnectReason } from "@whiskeysockets/baileys";
+import qrcodeTerminal from "qrcode-terminal";
 
 /** Creates the Baileys-backed transport (lazy import: boot cost stays out of unit-test paths). */
 export function createBaileysTransport(options: {
@@ -60,11 +61,14 @@ export function createBaileysTransport(options: {
 					auth: state,
 					logger: pino({ level: "warn" }),
 					browser: ["dot-whatsapp", "bridge", "0.1.0"],
-					printQRInTerminal: true,
 				});
 				socket = ws;
 				ws.ev.on("creds.update", () => void saveCreds());
 				ws.ev.on("connection.update", (update) => {
+					if (update.qr) {
+						qrcodeTerminal.generate(update.qr, { small: true });
+						log("QR code rendered — scan with WhatsApp Business → Linked Devices → Link a Device");
+					}
 					if (update.connection === "open") {
 						sockReady = ws;
 						log("WhatsApp session open");
@@ -72,7 +76,7 @@ export function createBaileysTransport(options: {
 					if (update.connection === "close") {
 						sockReady = undefined;
 						const code = (update.lastDisconnect?.error as { output?: { statusCode?: number } } | undefined)?.output?.statusCode;
-						if (code === baileys.DisconnectReason.loggedOut) {
+						if (code === DisconnectReason.loggedOut) {
 							log("logged out: delete the auth dir and pair again");
 							return;
 						}
