@@ -29,7 +29,7 @@ export interface ChannelTransport {
 
 import { mkdirSync, chmodSync } from "node:fs";
 import { isJidUser, isLidUser, DisconnectReason } from "@whiskeysockets/baileys";
-import qrcodeTerminal from "qrcode-terminal";
+import QRCode from "qrcode";
 
 /** Creates the Baileys-backed transport (lazy import: boot cost stays out of unit-test paths). */
 export function createBaileysTransport(options: {
@@ -64,10 +64,22 @@ export function createBaileysTransport(options: {
 				});
 				socket = ws;
 				ws.ev.on("creds.update", () => void saveCreds());
-				ws.ev.on("connection.update", (update) => {
+				ws.ev.on("connection.update", async (update) => {
 					if (update.qr) {
-						qrcodeTerminal.generate(update.qr, { small: true });
+						const qr = await QRCode.toString(update.qr, {
+							type: "terminal",
+							small: true,
+							errorCorrectionLevel: "L",
+						});
+						log(qr);
+						const pngPath = options.authDir + "/../qr.png";
+						await QRCode.toFile(pngPath, update.qr, {
+							errorCorrectionLevel: "L",
+							width: 600,
+							margin: 4,
+						});
 						log("QR code rendered — scan with WhatsApp Business → Linked Devices → Link a Device");
+						log(`QR image saved to ${pngPath} — open in browser/image viewer to scan`);
 					}
 					if (update.connection === "open") {
 						sockReady = ws;
