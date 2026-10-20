@@ -13,6 +13,8 @@ export interface Config {
 	engramUrl: string;
 	/** Engram project receiving this bridge's operational observations. */
 	engramProject: string;
+	/** WhatsApp provider to use: "baileys" (default) or "meta-cloud". */
+	provider: "baileys" | "meta-cloud";
 }
 
 /** A configuration problem; the message names the variable and never repeats its value. */
@@ -41,5 +43,6 @@ export function loadConfig(env: Record<string, string | undefined>, home: string
 		tokenFile: env.GENTLE_DOT_TOKEN_FILE?.trim() || join(home, ".gentle-dot", "token"),
 		engramUrl: env.ENGRAM_URL?.trim() || "http://127.0.0.1:47821",
 		engramProject: env.DOT_WHATSAPP_ENGRAM_PROJECT?.trim() || "dot-whatsapp",
+		provider: (env.DOT_WHATSAPP_PROVIDER ?? "baileys") as "baileys" | "meta-cloud",
 	};
 }

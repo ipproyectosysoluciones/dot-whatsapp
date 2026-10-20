@@ -3,7 +3,7 @@ import { Bridge } from "./bridge.ts";
 import { ConfigError, loadConfig } from "./config.ts";
 import { DaemonClient } from "./daemon-client.ts";
 import { createEngramStore } from "./engram-store.ts";
-import { createBaileysTransport } from "./whatsapp.ts";
+import { createTransportFactory } from "./transport-factory.ts";
 
 const log = (message: string) => console.error(`[dot-whatsapp] ${message}`);
 
@@ -34,10 +34,11 @@ async function main(): Promise<void> {
 		process.exit(1);
 	}
 
-	const transport = createBaileysTransport({
+	const transport = createTransportFactory({
 		authDir: config.authDir,
 		allowedNumbers: config.allowedNumbers,
 		log,
+		provider: config.provider,
 	});
 	let bridge: Bridge;
 	const daemon = new DaemonClient({
