@@ -19,3 +19,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Derivative work notice
+
+src/daemon-client.ts and src/protocol.ts are derived from dot-telegram,
+created by Daniel (danielgap), originally distributed under the MIT License.
+dot-telegram remains under its own MIT license; this notice credits its
+authorship and preserves the origin of the reused files as that license
+requires.

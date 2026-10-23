@@ -9,6 +9,7 @@ Puente WhatsApp ↔ Gentle Dot como servicio de usuario (systemd `--user`; linge
 
 # 2. Credenciales en .env (gitignored, 600). Contenido mínimo:
 #    DOT_WHATSAPP_ALLOWED_NUMBERS=549XXXXXXXXXX    (tu número personal, E.164 sin +)
+#    DOT_WHATSAPP_PROVIDER=baileys                 (default; "meta-cloud" = stub oficial, fase 2)
 #    (opcionales: GENTLE_DOT_URL, DOT_WHATSAPP_AUTH_DIR, ENGRAM_URL)
 
 # 3. Pairing del número del bot (una vez, diario dirigido):

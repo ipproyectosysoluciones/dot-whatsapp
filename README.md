@@ -14,7 +14,14 @@ Design decisions (dual-provider Meta Cloud API + Baileys, Engram as memory and b
 
 ## Status
 
-Scaffold only: config loader, copied daemon client + protocol (from dot-telegram, MIT), ChannelTransport interface, Engram store stub. Transport and bridge land via the tasks in `odd/tasks/dot-whatsapp.md`.
+Working bridge: Baileys transport (QR pairing, session persisted in `~/.dot-whatsapp/auth`), E.164 allowlist relay to the Gentle Dot daemon, Engram-backed idempotency, systemd `--user` service (see `docs/RUNBOOK.md`). Provider seam landed: the `ChannelTransport` interface + factory pick the transport from config; `meta-cloud` is a stub proving the seam (real Cloud API is phase 2).
+
+## Providers
+
+`DOT_WHATSAPP_PROVIDER` selects the transport (default `baileys`):
+
+- `baileys` — unofficial WhatsApp Web client. Use a **dedicated number**, human volume; ban risk, see the study.
+- `meta-cloud` — official Meta Cloud API. **Stub only**: same `ChannelTransport` interface with logged no-op sends; webhook receiver + Graph API delivery land in phase 2. Switching providers changes nothing else in the bridge.
 
 ## Security (phase 1, non-negotiable)
 
@@ -23,4 +30,4 @@ Scaffold only: config loader, copied daemon client + protocol (from dot-telegram
 - Baileys credentials on disk with mode 700; the daemon access key is re-read from its file before every connection.
 - Idempotency (Engram, `topic_key msg-<wa-id>`) so a restart never double-sends.
 
-MIT License (c) 2026. Reuses `daemon-client.ts` / `protocol.ts` from dot-telegram (danielgap, MIT).
+MIT License (c) 2026 Bladimir. `daemon-client.ts` / `protocol.ts` derive from dot-telegram, created by Daniel (danielgap), MIT — see LICENSE for the derivative-work notice.
