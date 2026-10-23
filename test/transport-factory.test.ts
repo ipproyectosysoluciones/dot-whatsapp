@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { createTransportFactory } from "../src/transport-factory";
-import { createBaileysTransport } from "../src/whatsapp";
-import { createMetaCloudTransport } from "../src/meta-cloud-transport";
+import { createTransportFactory } from "../src/transport-factory.ts";
+import { createBaileysTransport } from "../src/whatsapp.ts";
+import { createMetaCloudTransport } from "../src/meta-cloud-transport.ts";
 
 describe("transport factory", () => {
   const options = {

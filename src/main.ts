@@ -1,4 +1,10 @@
 import { homedir } from "node:os";
+import {
+	createAdminApi,
+	createChannelStateTracker,
+	createUnpairAction,
+	maskNumber,
+} from "./admin-api.ts";
 import { Bridge } from "./bridge.ts";
 import { ConfigError, loadConfig } from "./config.ts";
 import { DaemonClient } from "./daemon-client.ts";
@@ -58,14 +64,41 @@ async function main(): Promise<void> {
 	bridge = new Bridge({ transport, daemon, store, allowedNumbers: config.allowedNumbers, log });
 	transport.onMessage((message) => void bridge.onInbound(message));
 
+	// Admin API (S6): the Channels panel drives pairing/allowlist/teardown through here.
+	// The tracker mirrors transport state; the allowlist Set is shared, so mutations apply hot.
+	const tracker = createChannelStateTracker({ provider: config.provider });
+	transport.onState?.((event) => tracker.apply(event));
+	const admin = createAdminApi({
+		port: config.adminPort,
+		provider: config.provider,
+		tokenFile: config.adminTokenFile,
+		transport,
+		state: () => tracker.snapshot(),
+		allowlist: config.allowedNumbers,
+		unpair: createUnpairAction({ authDir: config.authDir, transport, tracker, log }),
+		onAllowlistChange: (numbers) => {
+			void store
+				.remember(
+					"allowlist",
+					"dot-whatsapp allowlist updated",
+					`**What**: allowlist changed via the admin API (hot apply).\n**Numbers**: ${numbers.map((n) => maskNumber(n)).join(", ")}`,
+				)
+				.catch((error: unknown) => log(`allowlist persist failed: ${(error as Error).message}`));
+		},
+		log,
+	});
+
 	const shutdown = () => {
-		daemon.stop();
-		void transport.stop().finally(() => process.exit(0));
+		void admin.stop().finally(() => {
+			daemon.stop();
+			void transport.stop().finally(() => process.exit(0));
+		});
 	};
 	process.once("SIGINT", shutdown);
 	process.once("SIGTERM", shutdown);
 
 	daemon.start();
+	await admin.start();
 	await transport.start();
 	log(`listening; ${config.allowedNumbers.size} allowlisted number(s), auth dir: ${config.authDir}`);
 }

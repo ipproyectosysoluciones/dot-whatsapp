@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createTransportFactory } from "../src/transport-factory";
+import { createTransportFactory } from "../src/transport-factory.ts";
 import { createBaileysTransport } from "../src/whatsapp.ts";
 import { createMetaCloudTransport } from "../src/meta-cloud-transport.ts";
 

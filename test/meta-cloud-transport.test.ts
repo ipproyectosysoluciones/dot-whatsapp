@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createMetaCloudTransport } from "../src/meta-cloud-transport";
+import { createMetaCloudTransport } from "../src/meta-cloud-transport.ts";
 
 describe("meta-cloud transport", () => {
   const options = {

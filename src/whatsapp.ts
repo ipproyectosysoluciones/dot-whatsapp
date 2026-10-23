@@ -25,7 +25,17 @@ export interface ChannelTransport {
 	sendText(toNumber: string, text: string): Promise<void>;
 	/** Stops the socket; process exit is owned by main.ts. */
 	stop(): Promise<void>;
+	/** Registers a connectivity observer for admin surfaces; optional for simple providers. */
+	onState?(handler: (event: TransportStateEvent) => void): void;
 }
+
+/** Connectivity events for admin surfaces; the relay behavior never depends on them. */
+export type TransportStateEvent =
+	| { kind: "qr"; qr: string }
+	| { kind: "open"; number?: string }
+	| { kind: "activity" }
+	| { kind: "close"; reason: "logged_out" | "reconnecting" | "stopped" }
+	| { kind: "error"; message: string };
 
 import { mkdirSync, chmodSync } from "node:fs";
 import { isJidUser, isLidUser, DisconnectReason } from "@whiskeysockets/baileys";
@@ -39,6 +49,7 @@ export function createBaileysTransport(options: {
 }): ChannelTransport {
 	const log = options.log ?? (() => {});
 	let handler: ((message: ChannelInbound) => void) | undefined;
+	let stateHandler: ((event: TransportStateEvent) => void) | undefined;
 	let sockReady: { sendMessage(jid: string, content: { text: string }): Promise<unknown> } | undefined;
 	let socket: { end(error?: Error): void } | undefined;
 	let reconnect: (() => void) | undefined;
@@ -48,6 +59,9 @@ export function createBaileysTransport(options: {
 	return {
 		onMessage(h) {
 			handler = h;
+		},
+		onState(h) {
+			stateHandler = h;
 		},
 		async start() {
 			mkdirSync(options.authDir, { recursive: true, mode: 0o700 });
@@ -66,6 +80,7 @@ export function createBaileysTransport(options: {
 				ws.ev.on("creds.update", () => void saveCreds());
 				ws.ev.on("connection.update", async (update) => {
 					if (update.qr) {
+						stateHandler?.({ kind: "qr", qr: update.qr });
 						const qr = await QRCode.toString(update.qr, {
 							type: "terminal",
 							small: true,
@@ -83,16 +98,21 @@ export function createBaileysTransport(options: {
 					}
 					if (update.connection === "open") {
 						sockReady = ws;
+						const ownId = (ws as { user?: { id?: string } }).user?.id;
+						const ownNumber = ownId ? (ownId.split("@")[0] ?? "").split(":")[0] : undefined;
 						log("WhatsApp session open");
+						stateHandler?.({ kind: "open", number: ownNumber || undefined });
 					}
 					if (update.connection === "close") {
 						sockReady = undefined;
 						const code = (update.lastDisconnect?.error as { output?: { statusCode?: number } } | undefined)?.output?.statusCode;
 						if (code === DisconnectReason.loggedOut) {
 							log("logged out: delete the auth dir and pair again");
+							stateHandler?.({ kind: "close", reason: "logged_out" });
 							return;
 						}
 						log(`connection closed (code ${String(code)}), reconnecting`);
+						stateHandler?.({ kind: "close", reason: "reconnecting" });
 						reconnect?.();
 					}
 				});
