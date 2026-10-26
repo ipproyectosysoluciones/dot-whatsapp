@@ -19,6 +19,8 @@ export interface Config {
 	adminPort: number;
 	/** File holding the admin API bearer token (0600, created if absent). */
 	adminTokenFile: string;
+	/** The allowlist persistence file (0600): the source of truth once it exists. */
+	allowlistFile: string;
 }
 
 /** A configuration problem; the message names the variable and never repeats its value. */
@@ -61,5 +63,6 @@ export function loadConfig(env: Record<string, string | undefined>, home: string
 		provider: (env.DOT_WHATSAPP_PROVIDER ?? "baileys") as "baileys" | "meta-cloud",
 		adminPort,
 		adminTokenFile: env.DOT_WHATSAPP_ADMIN_TOKEN_FILE?.trim() || join(home, ".dot-whatsapp", "admin-token"),
+		allowlistFile: env.DOT_WHATSAPP_ALLOWLIST_FILE?.trim() || join(home, ".dot-whatsapp", "allowlist.json"),
 	};
 }

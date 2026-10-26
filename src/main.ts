@@ -5,6 +5,7 @@ import {
 	createUnpairAction,
 	maskNumber,
 } from "./admin-api.ts";
+import { loadAllowlistFile, resolveAllowlist, saveAllowlistFile } from "./allowlist-store.ts";
 import { Bridge } from "./bridge.ts";
 import { ConfigError, loadConfig } from "./config.ts";
 import { DaemonClient } from "./daemon-client.ts";
@@ -26,6 +27,20 @@ async function main(): Promise<void> {
 	process.on("unhandledRejection", (error) =>
 		log(`unexpected error: ${(error as Error)?.message ?? String(error)}`),
 	);
+
+	// Boot-restore (S7): the allowlist file is the source of truth once it exists;
+	// the env only seeds the first boot. The shared Set is filled here, before
+	// transport, bridge, and admin API take their references.
+	const stored = loadAllowlistFile(config.allowlistFile);
+	const resolved = resolveAllowlist([...config.allowedNumbers], stored);
+	config.allowedNumbers.clear();
+	for (const number of resolved.numbers) config.allowedNumbers.add(number);
+	if (resolved.restored) {
+		log(`allowlist restored from file: ${resolved.numbers.length} number(s)`);
+	} else {
+		saveAllowlistFile(config.allowlistFile, resolved.numbers);
+		log(`allowlist seeded from env: ${resolved.numbers.length} number(s)`);
+	}
 
 	// The bridge DB: idempotency + liveness notes live in Engram. Fails closed if the CLI is absent.
 	const store = createEngramStore({ project: config.engramProject, log });
@@ -77,6 +92,12 @@ async function main(): Promise<void> {
 		allowlist: config.allowedNumbers,
 		unpair: createUnpairAction({ authDir: config.authDir, transport, tracker, log }),
 		onAllowlistChange: (numbers) => {
+			// The file is the source of truth (full digits, 0600); Engram keeps a masked note.
+			try {
+				saveAllowlistFile(config.allowlistFile, numbers);
+			} catch (error: unknown) {
+				log(`allowlist file persist failed: ${(error as Error).message}`);
+			}
 			void store
 				.remember(
 					"allowlist",

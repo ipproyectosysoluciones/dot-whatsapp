@@ -49,3 +49,4 @@ systemctl --user status dot-whatsapp.service
 - Respuestas van al último remitente allowlisted.
 - Números nuevos: agregar a `DOT_WHATSAPP_ALLOWED_NUMBERS` + `systemctl --user restart dot-whatsapp`.
 - Anti-spam natural: tráfico humano únicamente (Meta ban risk en clientes no oficiales).
+- **La allowlist vive en `~/.dot-whatsapp/allowlist.json` (0600)**: es la fuente de verdad desde el primer boot — el env `DOT_WHATSAPP_ALLOWED_NUMBERS` solo siembra; agregar/quitar desde el panel o la API persiste ahí y sobrevive reinicios. Una lista vacía intencional se respeta (el puente corre pero nadie puede escribir); un archivo corrupto cae al env con log.
