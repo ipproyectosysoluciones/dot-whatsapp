@@ -28,12 +28,27 @@ describe("transport factory", () => {
     expect(transport).toHaveProperty("stop");
   });
 
+  const meta = {
+    phoneNumberId: "123456789012345",
+    token: "t",
+    verifyToken: "v",
+    appSecret: "s",
+    webhookPort: 0,
+    webhookHost: "127.0.0.1",
+    graphUrl: "http://127.0.0.1:1",
+    graphVersion: "v21.0",
+  };
+
   it("should create meta-cloud transport when specified", () => {
-    const transport = createTransportFactory({ ...options, provider: "meta-cloud" });
+    const transport = createTransportFactory({ ...options, provider: "meta-cloud", meta });
     expect(transport).toHaveProperty("start");
     expect(transport).toHaveProperty("onMessage");
     expect(transport).toHaveProperty("sendText");
     expect(transport).toHaveProperty("stop");
+  });
+
+  it("should refuse meta-cloud without the meta configuration block", () => {
+    expect(() => createTransportFactory({ ...options, provider: "meta-cloud" })).toThrow(/meta configuration block/);
   });
 
   it("should throw error for unknown provider", () => {
