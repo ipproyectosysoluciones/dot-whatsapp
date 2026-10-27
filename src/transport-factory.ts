@@ -2,6 +2,8 @@ import type { ChannelTransport } from "./whatsapp.ts";
 import { createBaileysTransport } from "./whatsapp.ts";
 import { createMetaCloudTransport } from "./meta-cloud-transport.ts";
 
+import type { MetaCloudConfig } from "./meta-cloud-transport.ts";
+
 export type ProviderType = "baileys" | "meta-cloud";
 
 export interface TransportFactoryOptions {
@@ -9,6 +11,7 @@ export interface TransportFactoryOptions {
   allowedNumbers: Set<string>;
   log?(m: string): void;
   provider?: ProviderType;
+  meta?: MetaCloudConfig | null;
 }
 
 /**
@@ -22,7 +25,12 @@ export function createTransportFactory(options: TransportFactoryOptions): Channe
     case "baileys":
       return createBaileysTransport(options);
     case "meta-cloud":
-      return createMetaCloudTransport(options);
+      return createMetaCloudTransport({
+        authDir: options.authDir,
+        allowedNumbers: options.allowedNumbers,
+        log: options.log,
+        meta: options.meta ?? undefined,
+      });
     default:
       throw new Error(`Unknown provider: ${provider}. Supported providers: baileys, meta-cloud`);
   }

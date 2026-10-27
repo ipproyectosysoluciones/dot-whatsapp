@@ -29,6 +29,16 @@ describe("provider selection", () => {
     const transport = createTransportFactory({
       ...baseOptions,
       provider: "meta-cloud",
+      meta: {
+        phoneNumberId: "123456789012345",
+        token: "t",
+        verifyToken: "v",
+        appSecret: "s",
+        webhookPort: 0,
+        webhookHost: "127.0.0.1",
+        graphUrl: "http://127.0.0.1:1",
+        graphVersion: "v21.0",
+      },
     });
     
     expect(transport).toHaveProperty("start");

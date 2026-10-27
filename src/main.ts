@@ -60,6 +60,7 @@ async function main(): Promise<void> {
 		allowedNumbers: config.allowedNumbers,
 		log,
 		provider: config.provider,
+		meta: config.meta,
 	});
 	let bridge: Bridge;
 	const daemon = new DaemonClient({

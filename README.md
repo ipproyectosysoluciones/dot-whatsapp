@@ -21,7 +21,7 @@ Working bridge: Baileys transport (QR pairing, session persisted in `~/.dot-what
 `DOT_WHATSAPP_PROVIDER` selects the transport (default `baileys`):
 
 - `baileys` — unofficial WhatsApp Web client. Use a **dedicated number**, human volume; ban risk, see the study.
-- `meta-cloud` — official Meta Cloud API. **Stub only**: same `ChannelTransport` interface with logged no-op sends; webhook receiver + Graph API delivery land in phase 2. Switching providers changes nothing else in the bridge.
+- `meta-cloud` — official Meta Cloud API: signature-validated webhook receiver + Graph API sends behind the same `ChannelTransport` interface. Requires owner-side Meta Business setup: phone number id, Graph token, verify token, app secret (env `DOT_WHATSAPP_META_*`), and a publicly reachable URL for the webhook (reverse proxy or tunnel). Switching providers changes nothing else in the bridge.
 
 ## Security (phase 1, non-negotiable)
 
