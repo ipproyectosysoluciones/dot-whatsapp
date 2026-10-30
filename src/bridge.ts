@@ -163,6 +163,33 @@ export class Bridge {
 					await this.replyBroadcast(`No pude llegar al asistente: ${message.message}`);
 				}
 				return;
+			case "channel_notify": {
+				const to = message.to;
+				const text = message.text;
+				if (!to || !text) {
+					this.options.log("channel_notify ignored: missing to or text");
+					return;
+				}
+				if (!this.options.allowedNumbers.has(to)) {
+					this.options.log(`channel_notify ignored: number not allowlisted (…${to.slice(-4)})`);
+					return;
+				}
+				// Idempotency: if daemon provides requestId, use it as dedup anchor
+				if (message.requestId) {
+					const key = `msg-${message.requestId}`;
+					if (await this.options.store.seen(key)) {
+						this.options.log(`channel_notify ignored: duplicate ${key}`);
+						return;
+					}
+					await this.options.store.remember(
+						key,
+						`dot-whatsapp proactive ${key}`,
+						`**What**: proactive notification sent to allowlisted number.\n**To (hashed tail)**: …${to.slice(-4)}\n**Text length**: ${text.length} chars`,
+					);
+				}
+				await this.reply(to, text);
+				return;
+			}
 			default:
 				return; // activity, toast, voice… — ignored by design in phase 1
 		}

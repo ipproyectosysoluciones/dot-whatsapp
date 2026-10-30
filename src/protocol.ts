@@ -60,6 +60,7 @@ export type ServerPayload =
 	| { type: "error"; code: string; message: string }
 	| { type: "auth_providers"; voice?: VoiceCapability }
 	| { type: "voice_transcript"; requestId: string; text: string }
-	| { type: "voice_unavailable"; requestId: string; reason: string };
+	| { type: "voice_unavailable"; requestId: string; reason: string }
+	| { type: "channel_notify"; to: string; text: string; requestId?: string };
 
 export type ServerMessage = ServerPayload & { seq: number };

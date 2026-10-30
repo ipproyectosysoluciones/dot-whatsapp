@@ -145,3 +145,91 @@ describe("splitMessage", () => {
 		expect(chunks.join("")).toContain("line 29");
 	});
 });
+
+describe("bridge: proactive outreach (channel_notify)", () => {
+	it("delivers proactive message to allowlisted number", async () => {
+		const { bridge, sent } = harness();
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: "🔔 Recordatorio: backup programado",
+			seq: 1,
+		} as ServerMessage);
+		expect(sent).toEqual([
+			{ to: ALLOWED, text: "🔔 Recordatorio: backup programado" },
+		]);
+	});
+
+	it("ignores channel_notify for non-allowlisted number", async () => {
+		const { bridge, sent, logs } = harness();
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: "1100000099",
+			text: "spam",
+			seq: 1,
+		} as ServerMessage);
+		expect(sent).toEqual([]);
+		expect(logs.join("\n")).toMatch(/not allowlisted/);
+	});
+
+	it("ignores channel_notify with missing to or text", async () => {
+		const { bridge, sent, logs } = harness();
+		await bridge.handleDaemon({ type: "channel_notify", to: "", text: "x", seq: 1 } as ServerMessage);
+		await bridge.handleDaemon({ type: "channel_notify", to: ALLOWED, text: "", seq: 2 } as ServerMessage);
+		await bridge.handleDaemon({ type: "channel_notify", to: "", text: "", seq: 3 } as ServerMessage);
+		expect(sent).toEqual([]);
+		expect(logs.join("\n")).toMatch(/missing to or text/);
+	});
+
+	it("idempotency: same requestId is never delivered twice", async () => {
+		const { bridge, sent } = harness();
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: "primera",
+			requestId: "req-123",
+			seq: 1,
+		} as ServerMessage);
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: "segunda",
+			requestId: "req-123",
+			seq: 2,
+		} as ServerMessage);
+		expect(sent).toHaveLength(1);
+		expect(sent[0].text).toBe("primera");
+	});
+
+	it("without requestId, each channel_notify is delivered (no dedup anchor)", async () => {
+		const { bridge, sent } = harness();
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: "uno",
+			seq: 1,
+		} as ServerMessage);
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: "dos",
+			seq: 2,
+		} as ServerMessage);
+		expect(sent).toHaveLength(2);
+		expect(sent.map((s) => s.text)).toEqual(["uno", "dos"]);
+	});
+
+	it("splits long proactive messages across chunks", async () => {
+		const { bridge, sent } = harness();
+		const longText = "A".repeat(5000);
+		await bridge.handleDaemon({
+			type: "channel_notify",
+			to: ALLOWED,
+			text: longText,
+			seq: 1,
+		} as ServerMessage);
+		expect(sent.length).toBeGreaterThan(1);
+		expect(sent.every((s) => s.text.length <= 4000)).toBe(true);
+		expect(sent.map((s) => s.text).join("")).toBe(longText);
+	});
+});
