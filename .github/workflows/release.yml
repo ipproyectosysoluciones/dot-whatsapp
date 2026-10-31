@@ -108,6 +108,102 @@ jobs:
           sha256sum "$ARCHIVE" > checksums.txt
           cat checksums.txt
 
+      - name: Generate release body
+        id: release_body
+        run: |
+          cat << 'EOF' > release_body.md
+          dot-whatsapp v${{ github.ref_name#v }} is the first prototype release of the WhatsApp bridge for Gentle Dot.
+
+          It extends Gentle Dot with an opt-in, separate bridge process that connects as a WebSocket client (protocol v1) and relays one allowlisted WhatsApp conversation. Gentle Dot itself never changes.
+
+          ## What's new
+
+          ### Core bridge (T1–T6)
+          - Scaffold, spike, bridge core, systemd service, RUNBOOK
+          - Baileys transport (QR pairing, session persisted in ~/.dot-whatsapp/auth)
+          - E.164 allowlist relay to Gentle Dot daemon
+          - Engram-backed idempotency (topic_key msg-<wa-id>)
+
+          ### Dual provider seam (T7)
+          - ChannelTransport interface (start / onMessage / sendText / stop)
+          - Provider factory: baileys | meta-cloud
+          - Meta Cloud stub proving the seam
+
+          ### Admin API for Channels panel (T8)
+          - Token-authed HTTP JSON on 127.0.0.1:4407 (Bearer, 0600, re-read per request)
+          - Endpoints: status, allowlist, pair/*, verify, unpair
+          - Numbers masked server-side (last 4 digits)
+
+          ### Allowlist boot-restore (T9, S7)
+          - Persisted to ~/.dot-whatsapp/allowlist.json (0600)
+          - Fail-safe: env seeds first boot only, corrupted file falls back to env
+
+          ### Meta Cloud API real (T10, S8)
+          - Webhook receiver: GET handshake + POST with X-Hub-Signature-256 validation
+          - Graph API sends: POST /{version}/{phoneNumberId}/messages with bearer token
+          - Config fail-closed: requires DOT_WHATSAPP_META_* vars
+          - Lifecycle: open/close with port release
+
+          ### Proactive outreach (T11, S9)
+          - New protocol v1 message: channel_notify { to, text, requestId? }
+          - Daemon validates allowlist, broadcasts to bridge
+          - Bridge validates again, deduplicates via requestId, delivers via transport.sendText
+
+          ### Security hardening (P1-1, P1-2)
+          - Rate limiting: token bucket (1000/day base) + exponential backoff (1s→60s)
+          - Webhook HMAC: X-Hub-Signature-256 timing-safe validation, 14 tests
+          - Strict E.164 allowlist, anti-loop, Baileys creds 0700, admin token 0600 re-read per request
+
+          ## Security (phase 1, non-negotiable)
+          - Strict E.164 allowlist; everything else ignored + logged
+          - Anti-loop: own messages, broadcasts, statuses, non-text never relayed
+          - Baileys creds 0700; daemon token re-read per connect
+          - Idempotency via Engram (topic_key msg-<wa-id>)
+          - Rate limiting: token bucket + exponential backoff
+          - Webhook HMAC: X-Hub-Signature-256 timing-safe, processes after validation
+          - Admin API: Bearer token 0600 re-read per request, loopback only, masked numbers
+
+          ## Dual provider
+          - **Baileys** (default): unofficial WhatsApp Web, QR pairing, free, ban risk
+          - **Meta Cloud API**: official, webhook + Graph API, requires Meta Business
+
+          ## Roadmap
+          - E2E test automation (docker-compose)
+          - Rate-limit test stabilization
+          - Upstream PRs to gentle-dot#65 (chained PRs #151–#154)
+
+          ## Provenance
+          - Release target: ${{ github.ref_name }} → ${{ github.sha }}
+          - Release workflow: [run ${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - Provider contract: protocol v1 (ChannelTransport)
+          - Verification: preflight, release, and verify jobs
+
+          ## Upgrade
+          ```bash
+          git pull
+          pnpm install --frozen-lockfile
+          pnpm typecheck && pnpm test
+          systemctl --user restart dot-whatsapp
+          ```
+
+          **Full changelog**: https://github.com/${{ github.repository }}/compare/$(git describe --tags --abbrev=0 @^)...${{ github.ref_name }}
+
+          EOF
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat release_body.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build release artifacts
+        run: |
+          ARCHIVE="dot-whatsapp-${GITHUB_REF_NAME#v}.tar.gz"
+          git archive --format=tar.gz --prefix=dot-whatsapp-${GITHUB_REF_NAME#v}/ -o "$ARCHIVE" HEAD
+          echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
+
+      - name: Generate checksums
+        run: |
+          sha256sum "$ARCHIVE" > checksums.txt
+          cat checksums.txt
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -115,14 +211,13 @@ jobs:
             ${{ env.ARCHIVE }}
             checksums.txt
           generate_release_notes: false
-          body_path: CHANGELOG.md
+          body_path: release_body.md
           draft: false
           prerelease: false
 
       - name: Update Homebrew tap (if configured)
         if: env.HOMEBREW_TAP_TOKEN != ''
         run: |
-          # Optional: update homebrew tap formula
           echo "Homebrew tap update would go here"
 
   verify:
@@ -146,7 +241,6 @@ jobs:
           gh release view "${{ github.ref_name }}" --json assets --jq '.assets[].name' | while read asset; do
             echo "Verifying $asset..."
             gh release download "${{ github.ref_name }}" -p "$asset" -O "/tmp/$asset"
-            # Verify checksum if present
             if [ -f checksums.txt ]; then
               sha256sum -c checksums.txt 2>/dev/null | grep "$asset" || echo "Checksum not in manifest"
             fi
