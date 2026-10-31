@@ -3,6 +3,8 @@
 
 <div align="center">
 
+[![Built with Gentle-AI](https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/docs/assets/brand/built-with-gentle-ai.png)](https://github.com/Gentleman-Programming/gentle-ai)
+
 <img width="100%" alt="dot-whatsapp banner: WhatsApp icon with a glowing rose inside a black circle, the dot-whatsapp wordmark, and the tagline Your Gentle Dot assistant, one WhatsApp message away" src="docs/assets/brand/dot-whatsapp-banner.png" />
 
 <h1>dot-whatsapp</h1>
@@ -144,11 +146,11 @@ Token-authed HTTP JSON on `127.0.0.1:4407` (Bearer token in `~/.dot-whatsapp/adm
 
 | Endpoint | Description |
 |---|---|
-| `GET /status` | `{state: off\|pairing\|connected\|error, provider, maskedNumber, lastActivityAt}` |
+| `GET /status` | `{state: off|pairing|connected|error, provider, maskedNumber, lastActivityAt}` |
 | `GET /allowlist` | Masked entries only |
-| `POST /allowlist` | `{action: add\|remove, number: <E.164>}` — hot apply via Engram pinned obs |
+| `POST /allowlist` | `{action: add|remove, number: <E.164>}` — hot apply via Engram pinned obs |
 | `POST /pair/start` | Start QR pairing |
-| `GET /pair/status` | `{qr\|null, expiresInSec, attempts}` |
+| `GET /pair/status` | `{qr|null, expiresInSec, attempts}` |
 | `POST /pair/regenerate` | New QR |
 | `POST /pair/cancel` | Cancel pairing |
 | `POST /verify` | Sends "👋 dot-whatsapp vinculado" to allowlist, returns masked results |
@@ -443,6 +445,12 @@ dot-whatsapp/
 ---
 
 <div align="center">
+
+<a href="https://github.com/Gentleman-Programming/gentle-ai">
+  <img width="220" src="https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/docs/assets/brand/built-with-gentle-ai.png" alt="Built with Gentle-AI" />
+</a>
+
+<br/><br/>
 
 > **Trademark notice:** Gentle AI™ and Engram™ are trademarks of Alan Buscaglia. The MIT License applies to the code; it does not permit implying endorsement or official affiliation. See [Gentle-AI's TRADEMARKS.md](https://github.com/Gentleman-Programming/gentle-ai/blob/main/TRADEMARKS.md).
 
