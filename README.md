@@ -5,7 +5,7 @@
 
 [![Built with Gentle-AI](https://raw.githubusercontent.com/Gentleman-Programming/gentle-ai/main/docs/assets/brand/built-with-gentle-ai.png)](https://github.com/Gentleman-Programming/gentle-ai)
 
-<img width="100%" alt="dot-whatsapp banner: WhatsApp icon with a glowing rose inside a black circle, the dot-whatsapp wordmark, and the tagline Your Gentle Dot assistant, one WhatsApp message away" src="docs/assets/brand/dot-whatsapp-banner.png" />
+<img width="100%" alt="dot-whatsapp banner: glowing rose inside a black circle, the dot-whatsapp wordmark, and the tagline Your Gentle Dot assistant, one WhatsApp message away" src="docs/assets/brand/dot-whatsapp-banner.svg" />
 
 <h1>dot-whatsapp</h1>
 

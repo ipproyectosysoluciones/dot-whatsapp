@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200">
+  <!-- Background: Gentle ecosystem dark -->
+  <rect width="1200" height="200" fill="#1A1218"/>
+
+  <!-- Outer glow ring (subtle) -->
+  <circle cx="600" cy="100" r="70" fill="#F095C8" opacity="0.12"/>
+
+  <!-- Middle glow ring -->
+  <circle cx="600" cy="100" r="55" fill="#F095C8" opacity="0.22"/>
+
+  <!-- Inner glow ring (brightest) -->
+  <circle cx="600" cy="100" r="40" fill="#F095C8" opacity="0.35"/>
+
+  <!-- Rose glyph - scaled and centered -->
+  <!-- Based on gentle-dot/docs/brand/rose-glyph.svg (viewBox 0 0 18 18) -->
+  <g transform="translate(591, 82) scale(6.66)">
+    <!-- Left petal outer -->
+    <path d="M6.6 11.1C4.2 10.3 3 8.3 3.1 5.3L5.4 6.5"
+          fill="#F095C8" opacity="0.9"
+          filter="url(#neonGlow)"/>
+    <!-- Right petal outer -->
+    <path d="M11.4 11.1C13.8 10.3 15 8.3 14.9 5.3L12.6 6.5"
+          fill="#F095C8" opacity="0.9"
+          filter="url(#neonGlow)"/>
+    <!-- Left petal inner -->
+    <path d="M5.4 6.5C5.5 3.9 7.1 2.5 9 2.5S12.5 3.9 12.6 6.5"
+          fill="#FFD6E8" opacity="0.8"/>
+    <!-- Right petal inner -->
+    <path d="M5.4 6.5C5.8 9.6 7.2 11.2 9 11.6C10.8 11.2 12.2 9.6 12.6 6.5"
+          fill="#FFD6E8" opacity="0.8"/>
+    <!-- Center detail -->
+    <path d="M9.05 8.7C7.7 8.7 7.2 7.3 7.9 6.5C8.6 5.8 9.9 6 10.1 6.95C10.25 7.6 9.7 8 9.15 7.8"
+          fill="#1A1218" opacity="0.9"/>
+    <!-- Stem -->
+    <path d="M9 11.6C9 13.6 8.6 15.1 7.5 16.6"
+          stroke="#F095C8" stroke-width="0.8" fill="none" opacity="0.9"
+          filter="url(#neonGlow)"/>
+    <!-- Leaf left -->
+    <path d="M8.85 13.7C10.1 12.6 12.2 12.6 13.1 13.5C12 14.6 10.2 14.7 8.85 13.7Z"
+          fill="#F095C8" opacity="0.7"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="180"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="18"
+        font-weight="600"
+        fill="#D7A0B8"
+        text-anchor="middle"
+        letter-spacing="0.02em">dot-whatsapp</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="200"
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+        font-size="12"
+        font-weight="400"
+        fill="#7AA2F7"
+        text-anchor="middle"
+        letter-spacing="0.01em">Your Gentle Dot assistant, one WhatsApp message away</text>
+
+  <!-- Neon glow filter for rose strokes -->
+  <defs>
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>

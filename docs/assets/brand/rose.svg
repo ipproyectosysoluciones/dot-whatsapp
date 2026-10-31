@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56">
+  <!-- Background circle: Gentle ecosystem dark -->
+  <circle cx="28" cy="28" r="28" fill="#1A1218"/>
+
+  <!-- Rose glyph centered - based on gentle-dot rose-glyph.svg -->
+  <g transform="translate(14, 14) scale(2.5)">
+    <!-- Left petal outer -->
+    <path d="M6.6 11.1C4.2 10.3 3 8.3 3.1 5.3L5.4 6.5"
+          fill="#F095C8" opacity="0.95"
+          filter="url(#neonGlowSmall)"/>
+    <!-- Right petal outer -->
+    <path d="M11.4 11.1C13.8 10.3 15 8.3 14.9 5.3L12.6 6.5"
+          fill="#F095C8" opacity="0.95"
+          filter="url(#neonGlowSmall)"/>
+    <!-- Left petal inner -->
+    <path d="M5.4 6.5C5.5 3.9 7.1 2.5 9 2.5S12.5 3.9 12.6 6.5"
+          fill="#FFD6E8" opacity="0.85"/>
+    <!-- Right petal inner -->
+    <path d="M5.4 6.5C5.8 9.6 7.2 11.2 9 11.6C10.8 11.2 12.2 9.6 12.6 6.5"
+          fill="#FFD6E8" opacity="0.85"/>
+    <!-- Center detail -->
+    <path d="M9.05 8.7C7.7 8.7 7.2 7.3 7.9 6.5C8.6 5.8 9.9 6 10.1 6.95C10.25 7.6 9.7 8 9.15 7.8"
+          fill="#1A1218" opacity="0.9"/>
+    <!-- Stem -->
+    <path d="M9 11.6C9 13.6 8.6 15.1 7.5 16.6"
+          stroke="#F095C8" stroke-width="0.6" fill="none" opacity="0.9"
+          filter="url(#neonGlowSmall)"/>
+    <!-- Leaf -->
+    <path d="M8.85 13.7C10.1 12.6 12.2 12.6 13.1 13.5C12 14.6 10.2 14.7 8.85 13.7Z"
+          fill="#F095C8" opacity="0.7"/>
+  </g>
+
+  <defs>
+    <filter id="neonGlowSmall" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>
