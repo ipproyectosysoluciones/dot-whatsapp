@@ -1,0 +1,50 @@
+---
+name: Bug report
+about: Report a reproducible bug in dot-whatsapp
+title: "[BUG] "
+labels: ["bug"]
+assignees: ""
+---
+
+## Summary
+
+One sentence: what happened vs what you expected.
+
+## Environment
+
+- **Provider**: `baileys` / `meta-cloud`
+- **OS**: (e.g., Ubuntu 24.04, macOS 15)
+- **Node**: `pnpm --version` / `node --version`
+- **Gentle Dot daemon version**: (from `pnpm -w list @gentle-dot/daemon` or similar)
+
+## Steps to reproduce
+
+1.
+2.
+3.
+
+## Evidence
+
+**Logs** (relevant lines from `journalctl --user -u dot-whatsapp -n 100`):
+
+```
+<paste>
+```
+
+**Config** (redact secrets):
+
+```bash
+DOT_WHATSAPP_PROVIDER=
+DOT_WHATSAPP_ALLOWED_NUMBERS=
+# ...other relevant vars
+```
+
+## Expected vs actual
+
+| Expected | Actual |
+|---|---|
+| | |
+
+## Additional context
+
+Any other info, screenshots, or related issues.

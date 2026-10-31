@@ -1,0 +1,23 @@
+# Dockerfile for dot-whatsapp E2E testing
+FROM node:24-bookworm-slim
+
+WORKDIR /app
+
+# Install pnpm and dependencies
+RUN corepack enable
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
+COPY src ./src
+COPY tsconfig.json ./
+
+# Build TypeScript
+RUN pnpm typecheck
+
+# The actual start will be done by docker-compose entrypoint
+CMD ["node", "src/main.ts"]

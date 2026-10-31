@@ -1,0 +1,45 @@
+{
+  "conventional-changelog": {
+    "preset": "angular",
+    "filters": {
+      "type": [
+        "feat",
+        "fix",
+        "perf",
+        "refactor",
+        "chore",
+        "docs",
+        "test",
+        "ci",
+        "build",
+        "revert",
+        "merge"
+      ],
+      "scope": []
+    },
+    "releaseCount": 0,
+    "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n",
+    "writerOpts": {
+      "transform": [
+        "filter-commit-types",
+        "group-by-type",
+        "sort-by-scope",
+        "finalize"
+      ],
+      "commitGroupsSort": "title",
+      "commitGroups": {
+        "feat": { "title": "### Added" },
+        "fix": { "title": "### Fixed" },
+        "perf": { "title": "### Performance" },
+        "refactor": { "title": "### Refactored" },
+        "chore": { "title": "### Changed" },
+        "docs": { "title": "### Documentation" },
+        "test": { "title": "### Tests" },
+        "ci": { "title": "### CI" },
+        "build": { "title": "### Build" },
+        "revert": { "title": "### Reverted" },
+        "merge": { "title": "### Merged" }
+      }
+    }
+  }
+}

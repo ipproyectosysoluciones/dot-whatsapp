@@ -1,0 +1,113 @@
+# E2E test composition: dot-whatsapp bridge + gentle-dot daemon (test mode)
+# Usage: docker compose -f docker-compose.e2e.yml up --build --abort-on-container-exit
+
+services:
+  # Engram server for idempotency/allowlist
+  engram:
+    image: node:24-bookworm-slim
+    working_dir: /app
+    command: >
+      sh -c "npm install -g @earendil-works/pi-coding-agent@latest &&
+             engram serve --port 47821 --data-dir /data"
+    volumes:
+      - engram-data:/data
+    ports:
+      - "47821:47821"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:47821/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Gentle Dot daemon (test mode - runs as current user, no VPS isolation)
+  gentle-dot:
+    build:
+      context: /run/media/bladimir/Datos/Datos/proyectos/work/gentleman/worktrees/gentle-dot-beta
+      dockerfile: Dockerfile
+      target: build
+    working_dir: /home/dot
+    environment:
+      - GENTLE_DOT_HOST=0.0.0.0
+      - GENTLE_DOT_PORT=4317
+      - GENTLE_DOT_DATA_DIR=/home/dot/.gentle-dot
+      - GENTLE_DOT_VPS=0
+      - ENGRAM_URL=http://engram:47821
+      - GENTLE_DOT_ENGRAM_DATA_DIR=/home/dot/.engram
+      - GENTLE_DOT_CONVERSATIONS=1
+      - DOT_WHATSAPP_ADMIN_PORT=4407
+      - DOT_WHATSAPP_ADMIN_TOKEN_FILE=/home/dot/.dot-whatsapp/admin-token
+    volumes:
+      - dot-home:/home/dot
+      - /run/media/bladimir/Datos/Datos/proyectos/work/gentleman/worktrees/gentle-dot-beta:/app:ro
+    ports:
+      - "4317:4317"
+    depends_on:
+      engram:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4317/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    entrypoint: >
+      sh -c "
+        mkdir -p /home/dot/.dot-whatsapp &&
+        echo 'test-admin-token-0123456789abcdef' > /home/dot/.dot-whatsapp/admin-token &&
+        chmod 600 /home/dot/.dot-whatsapp/admin-token &&
+        cd /app &&
+        node packages/daemon/src/cli.ts
+      "
+
+  # dot-whatsapp bridge (Baileys provider for E2E)
+  dot-whatsapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    working_dir: /app
+    environment:
+      - DOT_WHATSAPP_ALLOWED_NUMBERS=5491112345678
+      - GENTLE_DOT_URL=ws://gentle-dot:4317/ws
+      - GENTLE_DOT_TOKEN_FILE=/home/dot/.gentle-dot/token
+      - ENGRAM_URL=http://engram:47821
+      - DOT_WHATSAPP_ENGRAM_PROJECT=dot-whatsapp
+      - DOT_WHATSAPP_PROVIDER=baileys
+      - DOT_WHATSAPP_ADMIN_PORT=4407
+      - DOT_WHATSAPP_ADMIN_TOKEN_FILE=/home/dot/.dot-whatsapp/admin-token
+      - DOT_WHATSAPP_AUTH_DIR=/home/dot/.dot-whatsapp/auth
+      - DOT_WHATSAPP_ALLOWLIST_FILE=/home/dot/.dot-whatsapp/allowlist.json
+    volumes:
+      - dot-home:/home/dot
+      - .:/app:ro
+    depends_on:
+      gentle-dot:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        cd /app &&
+        node --env-file=.env.e2e src/main.ts
+      "
+
+  # E2E test runner
+  e2e-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    working_dir: /app
+    environment:
+      - ENGRAM_URL=http://engram:47821
+      - DOT_WHATSAPP_ENGRAM_PROJECT=dot-whatsapp
+    volumes:
+      - .:/app:ro
+    depends_on:
+      dot-whatsapp:
+        condition: service_started
+    entrypoint: >
+      sh -c "
+        cd /app &&
+        sleep 5 &&
+        node test/e2e-channel-notify.test.js
+      "
+
+volumes:
+  engram-data:
+  dot-home:

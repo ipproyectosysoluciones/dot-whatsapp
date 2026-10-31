@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200">
+  <rect width="1200" height="200" fill="#1A1218"/>
+  <circle cx="600" cy="100" r="60" fill="#F095C8" opacity="0.15"/>
+  <circle cx="600" cy="100" r="40" fill="#F095C8" opacity="0.3"/>
+  <path d="M600 70 Q570 85 580 100 Q570 115 600 130 Q630 115 620 100 Q630 85 600 70" fill="#F095C8" opacity="0.9"/>
+  <path d="M580 100 Q590 95 600 100 Q590 105 580 100" fill="#1A1218" opacity="0.8"/>
+  <text x="600" y="180" font-family="system-ui, sans-serif" font-size="18" fill="#D7A0B8" text-anchor="middle" font-weight="600">dot-whatsapp</text>
+  <text x="600" y="200" font-family="system-ui, sans-serif" font-size="12" fill="#7aa2f7" text-anchor="middle">Your Gentle Dot assistant, one WhatsApp message away</text>
+</svg>

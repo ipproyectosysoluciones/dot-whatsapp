@@ -1,0 +1,24 @@
+[Unit]
+Description=dot-whatsapp bridge (Gentle Dot WhatsApp channel)
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=%h/.config/dot-whatsapp/env
+ExecStart=%h/.local/bin/pnpm --dir %h/proyectos/work/gentleman/dot-whatsapp start:env
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.dot-whatsapp %h/.gentle-dot %h/.engram
+
+[Install]
+WantedBy=default.target

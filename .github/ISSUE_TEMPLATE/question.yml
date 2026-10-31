@@ -1,0 +1,27 @@
+---
+name: Question
+about: Ask a question about using, configuring, or contributing to dot-whatsapp
+title: "[QUESTION] "
+labels: ["question"]
+assignees: ""
+---
+
+## Question
+
+What do you want to know?
+
+## Context
+
+What are you trying to achieve? What have you already tried?
+
+## Environment (if relevant)
+
+- **Provider**: `baileys` / `meta-cloud`
+- **OS**:
+- **Node/pnpm version**:
+
+## Related docs
+
+- [README](README.md)
+- [RUNBOOK](docs/RUNBOOK.md)
+- [Study doc](../Propuesta — dot-whatsapp (WhatsApp para Gentle Dot).md)

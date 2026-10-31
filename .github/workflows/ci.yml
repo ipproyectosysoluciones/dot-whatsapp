@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+        env:
+          ENGRAM_URL: http://localhost:47821
+          DOT_WHATSAPP_ENGRAM_PROJECT: dot-whatsapp
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build 2>/dev/null || echo "No build script; source-only project"
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }} .
+      - name: Push to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker push ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }}
+      - run: docker tag ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }} ghcr.io/gentleman-programming/dot-whatsapp:latest
+      - run: docker push ghcr.io/gentleman-programming/dot-whatsapp:latest
+
+  conventional-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - name: Check conventional commits
+        run: |
+          npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.event.pull_request.head.sha }} || {
+            echo "::error::Commit messages must follow Conventional Commits. See CONTRIBUTING.md"
+            exit 1
+          }
+
+  validate-merge-commit:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate merge commit
+        run: |
+          MERGE_MSG=$(git log -1 --pretty=%B)
+          if ! echo "$MERGE_MSG" | grep -qE '^(feat|fix|docs|chore|refactor|test|merge):'; then
+            echo "::error::Merge commit must follow Conventional Commits: <type>: <summary>"
+            exit 1
+          fi

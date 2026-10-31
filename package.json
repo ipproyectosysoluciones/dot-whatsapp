@@ -11,8 +11,10 @@
 	"scripts": {
 		"start": "node src/main.ts",
 		"start:env": "node --env-file=.env src/main.ts",
-		"test": "vitest run",
-		"typecheck": "tsc --noEmit"
+		"test": "vitest run --exclude test/e2e-channel-notify.test.ts",
+		"test:e2e": "vitest run test/e2e-channel-notify.test.ts",
+		"typecheck": "tsc --noEmit",
+		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
 	},
 	"license": "MIT",
 	"dependencies": {
@@ -26,6 +28,7 @@
 		"@types/qrcode": "^1.5.6",
 		"@types/qrcode-terminal": "^0.12.2",
 		"@types/ws": "^8.18.2",
+		"conventional-changelog-cli": "^5.0.0",
 		"qrcode": "^1.5.4",
 		"typescript": "^7.0.2",
 		"vitest": "^5.0.3"

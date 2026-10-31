@@ -6,6 +6,7 @@ import {
 } from "./protocol.ts";
 import type { EngramLike } from "./engram-store.ts";
 import type { ChannelTransport } from "./whatsapp.ts";
+import { RateLimiter } from "./rate-limit.ts";
 
 /** WhatsApp's practical text message ceiling; we stay well under it. */
 export const WHATSAPP_TEXT_LIMIT = 4000;
@@ -65,6 +66,7 @@ export interface BridgeOptions {
 	allowedNumbers: Set<string>;
 	sourceLabel?: string;
 	log(message: string): void;
+	rateLimiter?: RateLimiter;
 }
 
 /**
@@ -77,10 +79,12 @@ export class Bridge {
 	private ask: PendingAsk | undefined;
 	private agentState: AgentState = "idle";
 	private readonly sourceLabel: string;
+	private readonly rateLimiter: RateLimiter;
 
 	constructor(options: BridgeOptions) {
 		this.options = options;
 		this.sourceLabel = options.sourceLabel ?? SOURCE_LABEL;
+		this.rateLimiter = options.rateLimiter ?? new RateLimiter(options.transport, options.log);
 		// The transport delivers fully-filtered messages through onInbound; see main.ts.
 	}
 
@@ -253,13 +257,10 @@ export class Bridge {
 	}
 
 	private async reply(to: string, text: string): Promise<void> {
-		for (const chunk of splitMessage(text)) {
-			try {
-				await this.options.transport.sendText(to, chunk);
-			} catch (error) {
-				this.options.log(`send failed: ${(error as Error)?.message ?? String(error)}`);
-				return;
-			}
+		try {
+			await this.rateLimiter.send(to, text);
+		} catch (error) {
+			this.options.log(`rate limit send failed: ${(error as Error)?.message ?? String(error)}`);
 		}
 	}
 }

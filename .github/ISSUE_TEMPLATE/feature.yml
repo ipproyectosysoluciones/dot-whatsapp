@@ -1,0 +1,41 @@
+---
+name: Feature request
+about: Propose a new feature or improvement for dot-whatsapp
+title: "[FEAT] "
+labels: ["feature"]
+assignees: ""
+---
+
+## Problem
+
+What problem does this solve? Why is it needed?
+
+## Proposed solution
+
+Describe the feature and how it would work. Include:
+- User-facing behavior
+- Internal changes (protocol, bridge, admin API, providers)
+- Configuration changes (new env vars, files)
+
+## Alternatives considered
+
+What else did you consider? Why is this the best approach?
+
+## Scope & impact
+
+- **Providers affected**: `baileys` / `meta-cloud` / both
+- **Protocol changes**: Does this extend `protocol.ts`? (Risk: item 3)
+- **Admin API changes**: New endpoints or modified payloads?
+- **Migration**: Breaking changes? Upgrade path?
+
+## Evidence / prototype
+
+If you have a spike or prototype, link the branch or commit.
+
+## Checklist
+
+- [ ] Updates `odd/tasks/dot-whatsapp.md` (specs + tasks + log)
+- [ ] Adds/updates tests covering the new behavior
+- [ ] `pnpm test` passes
+- [ ] `pnpm typecheck` passes
+- [ ] Documentation updated (README, RUNBOOK, docs/)

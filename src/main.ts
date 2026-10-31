@@ -11,6 +11,7 @@ import { ConfigError, loadConfig } from "./config.ts";
 import { DaemonClient } from "./daemon-client.ts";
 import { createEngramStore } from "./engram-store.ts";
 import { createTransportFactory } from "./transport-factory.ts";
+import { RateLimiter } from "./rate-limit.ts";
 
 const log = (message: string) => console.error(`[dot-whatsapp] ${message}`);
 
@@ -77,7 +78,7 @@ async function main(): Promise<void> {
 			void transport.stop().finally(() => process.exit(1));
 		},
 	});
-	bridge = new Bridge({ transport, daemon, store, allowedNumbers: config.allowedNumbers, log });
+	bridge = new Bridge({ transport, daemon, store, allowedNumbers: config.allowedNumbers, log, rateLimiter: new RateLimiter(transport, log) });
 	transport.onMessage((message) => void bridge.onInbound(message));
 
 	// Admin API (S6): the Channels panel drives pairing/allowlist/teardown through here.
