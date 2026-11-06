@@ -83,8 +83,9 @@ Rules:
 
 ## Definition of done (before requesting review)
 
-- [ ] `pnpm test` — the full suite passes (88/88 currently; E2E and rate-limit tests are opt-in)
-- [ ] `pnpm typecheck` — clean (`tsc --noEmit` on `src/`)
+- [ ] `pnpm test` — the full suite passes (103/103 currently; the E2E suite is opt-in via `pnpm test:e2e` because it needs docker-compose)
+- [ ] `pnpm test:ci` — same suite plus the JUnit report CI uploads from `test-results/`
+- [ ] `pnpm typecheck` — clean, and it covers **both `src/` and `test/`** (a test-only type error is a broken build)
 - [ ] **No `any` anywhere** — this is strict TypeScript; use `unknown` and narrow
 - [ ] **Spec by reference** — subagent-facing work references `odd/tasks/dot-whatsapp.md` by path. Never paraphrase a spec in an issue, PR description, or prompt — link the source document.
 
@@ -109,7 +110,7 @@ All technical artifacts — issues, PRs, reviews, commits, code, code comments, 
 
 ## Security
 
-Never paste secrets or API keys in issues, PRs, or patches. Report vulnerabilities privately — see [SECURITY.md](.github/SECURITY.md).
+Never paste secrets or API keys in issues, PRs, or patches. Report vulnerabilities privately — see [SECURITY.md](SECURITY.md) (GitHub private vulnerability reporting; never a public issue).
 
 ---
 
@@ -125,23 +126,25 @@ By contributing, you agree your work is licensed under the repository's [MIT lic
 
 The single source of truth for this project is `odd/tasks/dot-whatsapp.md`. It contains:
 
-- **Specs** (S1–S9): numbered, quoted verbatim from owner decisions
-- **Tasks** (T1–T11 + P0/P1): one line each with ID, linked specs, route, commit
-- **Log** (L1–L19): every owner decision, evidence, and correction verbatim
+- **Specs** (S1–S12): numbered, quoted verbatim from owner decisions
+- **Tasks** (T1–T15 + P0/P1): one line each with ID, linked specs, route, commit
+- **Log** (L1–L22): every owner decision, evidence, and correction verbatim
 
 When you change a requirement, append its verbatim Log entry, rewrite only the affected `S#`, and reopen only its task.
 
-### Current P0/P1 gaps
+### Current gaps
 
-See `PROMPT-continue-gaps.md` for the ordered list:
+`PROMPT-continue-gaps.md` is a superseded snapshot kept for its original plan;
+the living state is `odd/tasks/dot-whatsapp.md`. As of 2026-11-06:
 
-| Task | Description | Status |
-|---|---|---|
-| P0-1 | E2E test `channel_notify` flow (docker-compose) | Done |
-| P0-2 | Document Meta Cloud credentials | Done (README + RUNBOOK) |
-| P0-3 | Upstream repo `Gentleman-Programming/dot-whatsapp` | Pending admin |
-| P1-1 | Rate limit queue + exponential retry | Done (tests WIP) |
-| P1-2 | Webhook HMAC verification audit | Done (14 tests) |
+| Item | Status |
+|---|---|
+| P0-1 E2E `channel_notify` flow | Done (`pnpm test:e2e`, docker-compose, not CI-gated) |
+| P0-2 Meta Cloud credentials | Code done; live verification waits for owner credentials |
+| P0-3 Upstream repo `Gentleman-Programming/dot-whatsapp` | Pending org admin (see `docs/UPSTREAM_SETUP.md`) |
+| P1-1 Rate limit + bounded retry (S10/S11) | Done (15 tests; CI-green branch) |
+| P1-2 Webhook HMAC audit | Done (14 tests) |
+| CI | Green on the open PR; `release.yml` fixed but only exercised by a new tag |
 
 ### RDD (Receipt-Driven Development)
 
@@ -151,11 +154,20 @@ This repo has RDD enabled via `gentle-ai`. After implementation:
 2. If a candidate exists, `gentle_review` with `{"operation":"start"}` with lenses chosen by consequence (risk, reliability, readability)
 3. Complete the review or explicitly leave the candidate unreviewed with a documented decision
 
+### Dependencies (pnpm 11)
+
+pnpm 11 moved two settings out of `package.json`:
+
+- **Build-script approval** lives in `pnpm-workspace.yaml` → `allowBuilds` (the legacy `onlyBuiltDependencies` is ignored). When pnpm reports `ERR_PNPM_IGNORED_BUILDS`, it writes the entries it wants with placeholder text: set each to `true` or `false`.
+- **Version overrides** live in `pnpm-workspace.yaml` → `overrides` (the legacy `package.json#pnpm.overrides` is ignored). Advisory fixes are pinned there, as done for `follow-redirects` 1.16.2.
+
+CI installs with `--frozen-lockfile`: any dependency change must ship its updated `pnpm-lock.yaml` in the same commit. Note that a user-level `ignoreScripts: true` (in `~/.config/pnpm/config.yaml`) hides ignored-build problems locally; reproduce CI with `pnpm install --frozen-lockfile --config.ignoreScripts=false`.
+
 ### Test expectations
 
 - **Unit/integration tests** must cover the behavior they pin (exit code, exact stdout/stderr, rejected input leaves data unchanged)
 - **E2E tests** (`pnpm test:e2e`) require docker-compose with engram + daemon + bridge
-- **Rate-limit tests** are WIP (some timeouts); run with `pnpm test test/rate-limit.test.ts`
+- **Rate-limit tests** (`pnpm test test/rate-limit.test.ts`) — 15 tests, including retry/drop/dispose contracts; they must stay deterministic (no wall-clock bounds under 1s)
 - **HMAC audit tests** (`pnpm test test/webhook-hmac-audit.test.ts`) — 14 tests passing
 - **Protocol tests** cover parser/serializer for all message types including new `channel_notify`
 
