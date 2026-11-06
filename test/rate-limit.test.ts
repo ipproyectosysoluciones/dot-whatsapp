@@ -11,6 +11,7 @@
 
 import { describe, expect, it, afterEach, vi } from "vitest";
 import { RateLimiter, DEFAULT_RATE_LIMIT_CONFIG, type RateLimitConfig } from "../src/rate-limit.ts";
+import type { ChannelTransport } from "../src/whatsapp.ts";
 
 const TEST_NUMBER = "5491112345678";
 
@@ -37,13 +38,15 @@ function createMockTransport() {
 	};
 }
 
+type LogMock = ReturnType<typeof vi.fn<(msg: string) => void>>;
+
 function createRateLimiter(
 	config: Partial<RateLimitConfig> = {},
-	injectedLog?: ReturnType<typeof vi.fn>
+	injectedLog?: LogMock
 ) {
 	const transport = createMockTransport();
-	const log = injectedLog ?? vi.fn();
-	const limiter = track(new RateLimiter(transport, log, config));
+	const log: LogMock = injectedLog ?? vi.fn<(msg: string) => void>();
+	const limiter = track(new RateLimiter(transport as unknown as ChannelTransport, log, config));
 	return { limiter, transport, log };
 }
 
@@ -144,7 +147,7 @@ describe("RateLimiter (P1-1)", () => {
 	});
 
 	it("masks numbers in logs at 80% threshold", async () => {
-		const log = vi.fn();
+		const log = vi.fn<(msg: string) => void>();
 		const { limiter } = createRateLimiter({ dailyLimit: 10, refillIntervalMs: 60_000 }, log);
 
 		for (let i = 0; i < 8; i++) {
@@ -168,7 +171,7 @@ describe("RateLimiter (P1-1)", () => {
 			});
 		const log = vi.fn();
 		const limiter = track(
-			new RateLimiter({ sendText } as never, log, {
+			new RateLimiter({ sendText } as unknown as ChannelTransport, log, {
 				dailyLimit: 10,
 				initialRetryDelayMs: 10,
 				maxRetryDelayMs: 50,
@@ -192,7 +195,7 @@ describe("RateLimiter (P1-1)", () => {
 			delivered.push(text);
 		});
 		const limiter = track(
-			new RateLimiter({ sendText } as never, vi.fn(), {
+			new RateLimiter({ sendText } as unknown as ChannelTransport, vi.fn(), {
 				dailyLimit: 10,
 				initialRetryDelayMs: 10,
 				maxRetryDelayMs: 50,
@@ -210,7 +213,7 @@ describe("RateLimiter (P1-1)", () => {
 		const sendText = vi.fn().mockRejectedValue(new Error("network error"));
 		const log = vi.fn();
 		const limiter = track(
-			new RateLimiter({ sendText } as never, log, {
+			new RateLimiter({ sendText } as unknown as ChannelTransport, log, {
 				dailyLimit: 10,
 				initialRetryDelayMs: 10,
 				maxRetryDelayMs: 20,
@@ -233,7 +236,7 @@ describe("RateLimiter (P1-1)", () => {
 			delivered.push(text);
 		});
 		const limiter = track(
-			new RateLimiter({ sendText } as never, vi.fn(), {
+			new RateLimiter({ sendText } as unknown as ChannelTransport, vi.fn(), {
 				dailyLimit: 1,
 				maxQueueDepth: 5,
 				initialRetryDelayMs: 10,
