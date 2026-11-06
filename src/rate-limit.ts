@@ -132,7 +132,8 @@ export class RateLimiter {
 				`rate limit: send failed for ${this.mask(to)} (attempt 1), ` +
 					`retrying in ${this.retryDelay(1)}ms: ${outcome.error.message}`
 			);
-			return this.enqueue(state, to, text, chunks.slice(outcome.failedAt), 1);
+			// The logged backoff is real: the requeued attempt must not fire before it elapses.
+			return this.enqueue(state, to, text, chunks.slice(outcome.failedAt), 1, Date.now() + this.retryDelay(1));
 		}
 
 		return this.enqueue(state, to, text, chunks, 0);
@@ -144,7 +145,8 @@ export class RateLimiter {
 		to: string,
 		text: string,
 		chunks: string[],
-		attempt: number
+		attempt: number,
+		nextRetryAt = Date.now()
 	): Promise<void> {
 		if (state.queue.length >= this.config.maxQueueDepth) {
 			this.log(`rate limit: queue full for ${this.mask(to)}, dropping message`);
@@ -157,7 +159,7 @@ export class RateLimiter {
 				text,
 				chunks,
 				attempt,
-				nextRetryAt: Date.now(),
+				nextRetryAt,
 				resolve,
 				reject,
 			};

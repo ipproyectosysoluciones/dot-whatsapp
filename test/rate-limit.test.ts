@@ -209,6 +209,34 @@ describe("RateLimiter (P1-1)", () => {
 		expect(delivered).toEqual(["A".repeat(4000), "A".repeat(1000)]);
 	}, 10000);
 
+	it("honors the initial backoff delay before the first retry of an immediate send (S10)", async () => {
+		const delivered: string[] = [];
+		const sendText = vi
+			.fn()
+			.mockRejectedValueOnce(new Error("network error"))
+			.mockImplementation(async (_to: string, text: string) => {
+				delivered.push(text);
+			});
+		const limiter = track(
+			new RateLimiter({ sendText } as unknown as ChannelTransport, vi.fn(), {
+				dailyLimit: 10,
+				initialRetryDelayMs: 500,
+				maxRetryDelayMs: 2000,
+				retryMultiplier: 2,
+			})
+		);
+
+		const promise = limiter.send(TEST_NUMBER, "hola"); // immediate attempt fails, stays pending
+
+		// Tokens are available, so the only thing gating the retry is the backoff.
+		await new Promise((r) => setTimeout(r, 200));
+		expect(sendText).toHaveBeenCalledTimes(1); // no immediate retry inside the delay
+		expect(limiter.getMetrics().totalQueued).toBe(1);
+
+		await promise; // resolves once the delayed retry delivers
+		expect(delivered).toEqual(["hola"]);
+	}, 10000);
+
 	it("drops a message that keeps failing after maxAttempts and rejects (S11)", async () => {
 		const sendText = vi.fn().mockRejectedValue(new Error("network error"));
 		const log = vi.fn();
