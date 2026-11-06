@@ -331,11 +331,18 @@ export class RateLimiter {
 		};
 	}
 
-	/** Stop the background timers. Idempotent. */
+	/** Stop the background timers and reject all pending queued promises. Idempotent. */
 	dispose(): void {
 		while (this.timers.length > 0) {
 			const timer = this.timers.pop();
 			if (timer !== undefined) clearInterval(timer);
+		}
+		// Reject all queued promises so callers never hang on a disposed limiter.
+		for (const state of this.states.values()) {
+			for (const queued of state.queue) {
+				queued.reject(new Error("RateLimiter disposed"));
+			}
+			state.queue.length = 0;
 		}
 	}
 
