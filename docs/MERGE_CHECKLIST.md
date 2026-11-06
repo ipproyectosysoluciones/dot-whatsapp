@@ -48,5 +48,3 @@ gh pr merge 151 --repo Gentleman-Programming/gentle-dot --merge --delete-branch
 # Ver logs CI
 gh run list --repo Gentleman-Programming/gentle-dot --limit 10
 ```
-EOF
-cat /run/media/bladimir/Datos/Datos/proyectos/work/gentleman/dot-whatsapp/docs/MERGE_CHECKLIST.md

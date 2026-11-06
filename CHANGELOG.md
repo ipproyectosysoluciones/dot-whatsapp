@@ -1,8 +1,10 @@
-# 0.0.0 (2026-10-31)
+
+# [0.1.0](https://github.com/ipproyectosysoluciones/dot-whatsapp/compare/237a99c2497ff8912c81d130674ce42f20c98133...v0.1.0) (2026-10-31)
 
 
 ### Bug Fixes
 
+* release workflow setup-node action version ([019e43a](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/019e43a6838db7a3ba85112eebf905298d40d604))
 * **store:** Engram CLI echoes the query in its no-results output ([c113188](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/c1131888d2fcf036bfaa048e8b07591d3b766eb5))
 
 

@@ -1,5 +1,10 @@
 # Prompt: Continue dot-whatsapp gaps (P0/P1)
 
+> **SNAPSHOT — superseded 2026-11-06.** This is a handoff prompt frozen on
+> 2026-10-30 (74/74 tests, before the CI investigation). The living record is
+> `odd/tasks/dot-whatsapp.md`; consult L20 there for the current state. Status
+> below is kept only as the original plan.
+
 ## Contexto
 - Bridge: dot-whatsapp/main (e18bc22) — T1–T11 ✅ 74/74 tests
 - Daemon: gentle-dot-beta/feat/channels-ux — GT1–GT5 ✅
@@ -85,11 +90,12 @@ gh repo create Gentleman-Programming/dot-whatsapp --private --source=. --push
 
 | Task | Status | Branch | Notes |
 |------|--------|--------|-------|
-| P0-1 Test E2E | 🔄 Pendiente | feat/e2e-channel-notify | |
-| P0-2 Doc Meta creds | 🔄 Pendiente | docs/meta-credentials | |
-| P0-3 Repo upstream | 🔄 Pendiente | chore/repo-setup | |
-| P1-1 Rate limit | 🔄 Pendiente | feat/rate-limit | |
-| P1-2 Webhook HMAC | 🔄 Pendiente | fix/webhook-hmac | |
+| P0-1 Test E2E | ✅ Hecho (2026-10-30) | feat/e2e-channel-notify | `test/e2e-channel-notify.test.ts`, fuera del run por defecto (necesita docker) |
+| P0-2 Doc Meta creds | 🔄 Pendiente | — | credenciales reales siguen sin existir |
+| P0-3 Repo upstream | 🔄 Pendiente | — | bloqueado: el token no puede crear repos en la org |
+| P1-1 Rate limit | ✅ Hecho (2026-11-06) | fix/ci-green-and-rate-limit | S10/S11; suite 102/102 |
+| P1-2 Webhook HMAC | ✅ Hecho (2026-10-30) | — | `test/webhook-hmac-audit.test.ts`, 14 casos |
+| CI en main | ✅ Arreglado (2026-11-06) | fix/ci-green-and-rate-limit | `ERR_PNPM_IGNORED_BUILDS`, junit, .nvmrc, docker parkeado |
 
 ---
 

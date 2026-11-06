@@ -332,6 +332,7 @@ journalctl --user -u dot-whatsapp -f
 ```bash
 # Tests
 pnpm test              # 102/102 passing (excludes E2E)
+pnpm test:ci           # same, plus test-results/junit.xml for CI artifacts
 pnpm test:e2e          # E2E tests (requires docker-compose)
 pnpm typecheck         # tsc --noEmit
 
@@ -408,7 +409,7 @@ dot-whatsapp/
 | **Fase 2.3** | T9: allowlist boot-restore (0600 file) | ✅ Done |
 | **Fase 2.4** | T10: Meta Cloud real (webhook HMAC + Graph) | ✅ Done |
 | **Fase 2.5** | T11: proactive outreach (`channel_notify`) | ✅ Done |
-| **P1-1** | Rate limit queue + exponential retry | ✅ Done (tests WIP) |
+| **P1-1** | Rate limit queue + exponential retry (bounded by `maxAttempts`) | ✅ Done |
 | **P1-2** | Webhook HMAC verification audit | ✅ Done (14 tests) |
 | **Upstream** | PR to `gentle-dot#65` | 🔄 In progress (#151–#154) |
 

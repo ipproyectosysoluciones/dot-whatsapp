@@ -258,11 +258,32 @@ systemctl --user restart dot-whatsapp
 
 ---
 
+## Dependency builds (pnpm 11)
+
+Dependency build scripts are approved in `pnpm-workspace.yaml` through the
+`allowBuilds` map. `onlyBuiltDependencies` is legacy in pnpm 11 and is ignored,
+which is why CI failed with `ERR_PNPM_IGNORED_BUILDS` while local installs looked
+fine: a user-level `ignoreScripts: true` hides the same problem locally. After
+changing dependencies, verify a clean install the CI way:
+
+```bash
+rm -rf node_modules && pnpm install --frozen-lockfile --config.ignoreScripts=false
+```
+
+When pnpm reports ignored builds, it also writes the `allowBuilds` entries it
+wants into `pnpm-workspace.yaml` with placeholder text — set each to `true` or
+`false` instead of deleting it.
+
+---
+
 ## Development
 
 ```bash
 # Run tests
 pnpm test
+
+# Run tests with a JUnit report (what CI does)
+pnpm test:ci
 
 # Typecheck
 pnpm typecheck
