@@ -3,7 +3,8 @@
  *
  * Features:
  * - Per-phone-number token bucket (1000 msg/day base tier)
- * - In-memory queue with exponential backoff retry
+ * - In-memory queue with exponential backoff retry, bounded by `maxAttempts`
+ * - Failed immediate sends are retried through the same queue (never silently lost)
  * - Metrics: rate_limit_hits, queue_depth, retry_count
  * - Warning log at 80% capacity
  */
@@ -26,6 +27,8 @@ export interface RateLimitConfig {
 	retryMultiplier: number;
 	/** Warning threshold as fraction of daily limit (default 0.8). */
 	warningThreshold: number;
+	/** Failed attempts allowed before a message is dropped and its promise rejects. */
+	maxAttempts: number;
 }
 
 /** Default configuration. */
@@ -37,6 +40,7 @@ export const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
 	maxRetryDelayMs: 60_000, // 60s
 	retryMultiplier: 2,
 	warningThreshold: 0.8,
+	maxAttempts: 5,
 };
 
 /** A queued message waiting for rate limit clearance. */
@@ -49,6 +53,9 @@ export interface QueuedMessage {
 	resolve: (value: void) => void;
 	reject: (reason?: Error) => void;
 }
+
+/** Outcome of one send attempt: where it stopped, or `null` when every chunk left. */
+type SendOutcome = { failedAt: number; error: Error } | { failedAt: null; error: null };
 
 /** Per-number rate limit state. */
 interface NumberState {
@@ -82,6 +89,7 @@ export class RateLimiter {
 	private readonly transport: ChannelTransport;
 	private readonly log: (msg: string) => void;
 	private readonly states = new Map<string, NumberState>();
+	private readonly timers: ReturnType<typeof setInterval>[] = [];
 	private processing = false;
 
 	constructor(
@@ -93,9 +101,9 @@ export class RateLimiter {
 		this.log = log;
 		this.config = { ...DEFAULT_RATE_LIMIT_CONFIG, ...config };
 		// Start periodic refill
-		setInterval(() => this.refill(), this.config.refillIntervalMs);
+		this.timers.push(setInterval(() => this.refill(), this.config.refillIntervalMs));
 		// Start queue processor (faster for testing)
-		setInterval(() => this.processQueues(), 100);
+		this.timers.push(setInterval(() => this.processQueues(), 100));
 	}
 
 	/**
@@ -112,13 +120,35 @@ export class RateLimiter {
 			state.tokens -= chunks.length;
 			state.rateLimitHits++;
 			this.maybeWarn(to, state);
-			return this.sendChunks(to, chunks);
+
+			const outcome = await this.trySendChunks(to, chunks);
+			if (outcome.failedAt === null) return;
+
+			// S10: a failed immediate send is not lost — the undelivered tail goes back
+			// through the queue. Chunks that already left are never resent.
+			const undelivered = chunks.length - outcome.failedAt;
+			state.tokens = Math.min(this.config.dailyLimit, state.tokens + undelivered);
+			this.log(
+				`rate limit: send failed for ${this.mask(to)} (attempt 1), ` +
+					`retrying in ${this.retryDelay(1)}ms: ${outcome.error.message}`
+			);
+			return this.enqueue(state, to, text, chunks.slice(outcome.failedAt), 1);
 		}
 
-		// Queue the message
+		return this.enqueue(state, to, text, chunks, 0);
+	}
+
+	/** Queue a message, or reject when this number's queue is already full. */
+	private enqueue(
+		state: NumberState,
+		to: string,
+		text: string,
+		chunks: string[],
+		attempt: number
+	): Promise<void> {
 		if (state.queue.length >= this.config.maxQueueDepth) {
 			this.log(`rate limit: queue full for ${this.mask(to)}, dropping message`);
-			throw new Error(`Rate limit queue full for ${this.mask(to)}`);
+			return Promise.reject(new Error(`Rate limit queue full for ${this.mask(to)}`));
 		}
 
 		return new Promise<void>((resolve, reject) => {
@@ -126,7 +156,7 @@ export class RateLimiter {
 				to,
 				text,
 				chunks,
-				attempt: 0,
+				attempt,
 				nextRetryAt: Date.now(),
 				resolve,
 				reject,
@@ -136,11 +166,30 @@ export class RateLimiter {
 		});
 	}
 
-	/** Send message chunks immediately (assumes tokens already deducted). */
-	private async sendChunks(to: string, chunks: string[]): Promise<void> {
-		for (const chunk of chunks) {
-			await this.transport.sendText(to, chunk);
+	/** Delay before the next attempt once `failures` attempts have failed. */
+	private retryDelay(failures: number): number {
+		return Math.min(
+			this.config.initialRetryDelayMs * this.config.retryMultiplier ** Math.max(0, failures - 1),
+			this.config.maxRetryDelayMs
+		);
+	}
+
+	/**
+	 * Send chunks in order and report the index of the first failure.
+	 * Chunks before it already left, so callers only retry from `failedAt` on.
+	 */
+	private async trySendChunks(to: string, chunks: string[]): Promise<SendOutcome> {
+		for (let index = 0; index < chunks.length; index++) {
+			try {
+				await this.transport.sendText(to, chunks[index]);
+			} catch (error) {
+				return {
+					failedAt: index,
+					error: error instanceof Error ? error : new Error(String(error)),
+				};
+			}
 		}
+		return { failedAt: null, error: null };
 	}
 
 	/** Split message into chunks respecting WhatsApp limit. */
@@ -193,41 +242,49 @@ export class RateLimiter {
 		this.processing = true;
 
 		try {
-			const now = Date.now();
 			for (const [to, state] of this.states) {
 				while (state.queue.length > 0) {
 					const queued = state.queue[0];
-					if (queued.nextRetryAt > now) break;
+					if (queued.nextRetryAt > Date.now()) break;
+					// Not enough tokens, wait for refill
+					if (state.tokens < queued.chunks.length) break;
 
-					if (state.tokens >= queued.chunks.length) {
-						// Have tokens, send it
+					state.tokens -= queued.chunks.length;
+					state.rateLimitHits++;
+					this.maybeWarn(to, state);
+
+					const outcome = await this.trySendChunks(to, queued.chunks);
+					if (outcome.failedAt === null) {
 						state.queue.shift();
-						state.tokens -= queued.chunks.length;
-						state.rateLimitHits++;
-						this.maybeWarn(to, state);
-
-						try {
-							await this.sendChunks(to, queued.chunks);
-							queued.resolve();
-						} catch (error) {
-							// Re-queue with exponential backoff
-							queued.attempt++;
-							state.retryCount++;
-							const delay = Math.min(
-								this.config.initialRetryDelayMs * this.config.retryMultiplier ** (queued.attempt - 1),
-								this.config.maxRetryDelayMs
-							);
-							queued.nextRetryAt = now + delay;
-							this.log(
-								`rate limit: send failed for ${this.mask(to)} (attempt ${queued.attempt}), ` +
-									`retrying in ${delay}ms: ${(error as Error).message}`
-							);
-							break; // Stop processing this queue, will retry later
-						}
-					} else {
-						// Not enough tokens, wait for refill
-						break;
+						queued.resolve();
+						continue;
 					}
+
+					// Keep only the undelivered tail: a chunk that already left is never resent.
+					const undelivered = queued.chunks.length - outcome.failedAt;
+					state.tokens = Math.min(this.config.dailyLimit, state.tokens + undelivered);
+					queued.chunks = queued.chunks.slice(outcome.failedAt);
+					queued.attempt++;
+					state.retryCount++;
+
+					// S11: bounded retries — drop and tell the caller instead of hanging forever.
+					if (queued.attempt >= this.config.maxAttempts) {
+						state.queue.shift();
+						this.log(
+							`rate limit: dropped message for ${this.mask(to)} after ${queued.attempt} ` +
+								`attempts: ${outcome.error.message}`
+						);
+						queued.reject(outcome.error);
+						continue; // a dropped message never blocks the ones queued behind it
+					}
+
+					const delay = this.retryDelay(queued.attempt);
+					queued.nextRetryAt = Date.now() + delay;
+					this.log(
+						`rate limit: send failed for ${this.mask(to)} (attempt ${queued.attempt}), ` +
+							`retrying in ${delay}ms: ${outcome.error.message}`
+					);
+					break; // Stop processing this queue, will retry later
 				}
 			}
 		} finally {
@@ -272,6 +329,14 @@ export class RateLimiter {
 			totalRetryCount,
 			byNumber,
 		};
+	}
+
+	/** Stop the background timers. Idempotent. */
+	dispose(): void {
+		while (this.timers.length > 0) {
+			const timer = this.timers.pop();
+			if (timer !== undefined) clearInterval(timer);
+		}
 	}
 
 	/** Mask phone number for logging (last 4 digits). */
