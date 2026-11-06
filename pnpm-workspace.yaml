@@ -1,3 +1,6 @@
-onlyBuiltDependencies:
-  - libsignal-node
-  - protobufjs
+# pnpm 11 build approval: `onlyBuiltDependencies` is legacy and ignored here,
+# so no dependency build script ran until this map existed (CI: ERR_PNPM_IGNORED_BUILDS).
+allowBuilds:
+  '@whiskeysockets/baileys': true
+  libsignal-node: true
+  protobufjs: true
