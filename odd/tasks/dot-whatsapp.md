@@ -72,6 +72,8 @@ Engram mirror topic: `dot-whatsapp-study`
   - **Prueba de CI real:** run del PR #1 verde (`test` 23s, `conventional-commits` success, `validate-merge-commit` skipped por diseño). La ejecución de `release.yml` sólo se puede probar con un tag nuevo: publicar release es decisión del dueño, no se tocó.
   - **Slice boundary:** 613 líneas authored en 4 commits de código sobre `1f709a6` — por encima de ~400. Se mantienen separados por unidad (rate-limit / typecheck / CI / flaky) para revisión; delivery (push, PR) queda a decisión del dueño.
 
+- **L22 (2026-11-06):** findings de la revisión nativa (`escalated`, 5) y decisiones del dueño ("adelante"): `dispose()` ahora rechaza las promesas encoladas (commit `32cee47`, el test ya no traga la promesa colgante) y `follow-redirects` pineado a 1.16.2 vía `overrides` en `pnpm-workspace.yaml` (commit `78662e5`; el campo `pnpm` de package.json es legacy en pnpm 11 y se ignora). Descripción del repo en GitHub configurada ("Opt-in WhatsApp bridge for the Gentle Dot assistant…"). Pendiente: diagnóstico del workflow `Dependabot Updates` (rojo) y prueba de `release.yml` con un tag nuevo (decisión del dueño).
+
 ## Beta-tester workspace (soporte)
 - Home escaneos: ~/bin/gentle-cfg (status/sync/update, adaptado brew-safe del script de Carolina) — sin mezclar con brew.
 - Forks limpios: proyectos/work/gentleman/{gentle-ai,gentle-shell,engram,dot-whatsapp(dot-telegram)}
