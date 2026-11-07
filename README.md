@@ -135,7 +135,7 @@ flowchart TB
 - **Anti-loop:** Own messages (fromMe), broadcasts, statuses, and non-text are never relayed.
 - **Baileys credentials** on disk with mode `0700`; daemon access key re-read from file before every connection.
 - **Idempotency** via Engram (`topic_key=msg-<wa-id>`) so a restart never double-sends.
-- **Rate limiting** (P1-1): token bucket per number (1000 msg/day base), exponential backoff retry queue bounded by `maxAttempts` (default 5), metrics. A send that fails is retried through the queue instead of being lost, and only the undelivered tail is retried — a chunk that already left is never resent. A message that exhausts `maxAttempts` rejects its promise, is logged as dropped, and never blocks the messages queued behind it.
+- **Rate limiting** (P1-1): token bucket per number (1000 msg/day base), exponential backoff retry queue bounded by `maxAttempts` (default 5), metrics. A send that fails is retried through the queue instead of being lost — including a failed immediate send, which re-enters the queue honoring the logged backoff — and only the undelivered tail is retried, so a chunk that already left is never resent. A message that exhausts `maxAttempts` rejects its promise, is logged as dropped, and never blocks the messages queued behind it. `dispose()` stops the timers and rejects every pending queued promise.
 - **Webhook HMAC** (P1-2): `X-Hub-Signature-256` timing-safe validation, 401 on missing/invalid signature, processes payload only after validation.
 
 ---
@@ -331,7 +331,7 @@ journalctl --user -u dot-whatsapp -f
 
 ```bash
 # Tests
-pnpm test              # 102/102 passing (excludes E2E)
+pnpm test              # 103/103 passing (excludes E2E)
 pnpm test:ci           # same, plus test-results/junit.xml for CI artifacts
 pnpm test:e2e          # E2E tests (requires docker-compose)
 pnpm typecheck         # tsc --noEmit
@@ -377,7 +377,7 @@ dot-whatsapp/
 ├── test/
 │   ├── bridge.test.ts          # 13 tests: inbound, daemon→WA, split, channel_notify
 │   ├── meta-cloud-transport.test.ts # 9 tests: webhook HMAC, Graph sends
-│   ├── rate-limit.test.ts      # 14 tests: bucket, queue, retry, drop, dispose
+│   ├── rate-limit.test.ts      # 15 tests: bucket, queue, retry, backoff, drop, dispose
 │   ├── webhook-hmac-audit.test.ts # 14 tests: HMAC audit (P1-2)
 │   ├── e2e-channel-notify.test.ts # E2E daemon→bridge (requires docker)
 │   ├── config.test.ts, allowlist-store.test.ts, ...

@@ -1,3 +1,20 @@
+# Unreleased
+
+Curated by hand — `pnpm changelog` only emits tagged releases; the release
+workflow regenerates this file when the next tag is cut.
+
+### Bug Fixes
+
+* **rate-limit:** retry failed sends through the queue and cap attempts (S10, S11) — a failed immediate send is no longer lost; only the undelivered tail retries, `maxAttempts` (default 5) drops the message observably, `dispose()` settles pending promises
+* **rate-limit:** honor the logged backoff before the first retry of an immediate send (review finding R4-ImmediateSendRetryIgnoresBackoff)
+* **ci:** unblock `pnpm install` (pnpm 11 `allowBuilds` replaces legacy `onlyBuiltDependencies`), parse-breaking `ref_name#v` expression in release.yml, legacy commit-status gate, JUnit reporter, `.nvmrc`, parked docker job (S12)
+* **deps:** pin `follow-redirects` to 1.16.2 (GHSA high in <= 1.16.1, via baileys→axios)
+
+### Changed
+
+* typecheck now covers `test/` (tsconfig include), commitlint runs as a real devDependency without `npx`
+* documentation refresh: SECURITY policy, CONTRIBUTING (pnpm 11 dependency rules, current gaps), README, RUNBOOK
+
 
 # [0.1.0](https://github.com/ipproyectosysoluciones/dot-whatsapp/compare/237a99c2497ff8912c81d130674ce42f20c98133...v0.1.0) (2026-10-31)
 
