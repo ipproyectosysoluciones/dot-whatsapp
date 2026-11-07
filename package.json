@@ -12,6 +12,7 @@
 		"start": "node src/main.ts",
 		"start:env": "node --env-file=.env src/main.ts",
 		"test": "vitest run --exclude test/e2e-channel-notify.test.ts",
+		"test:ci": "vitest run --exclude test/e2e-channel-notify.test.ts --reporter=default --reporter=junit --outputFile.junit=test-results/junit.xml",
 		"test:e2e": "vitest run test/e2e-channel-notify.test.ts",
 		"typecheck": "tsc --noEmit",
 		"changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
@@ -24,6 +25,8 @@
 		"ws": "^8.22.0"
 	},
 	"devDependencies": {
+		"@commitlint/cli": "^21.2.4",
+		"@commitlint/config-conventional": "^21.2.4",
 		"@types/node": "^26.6.5",
 		"@types/qrcode": "^1.5.6",
 		"@types/qrcode-terminal": "^0.12.2",

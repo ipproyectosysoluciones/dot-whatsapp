@@ -20,7 +20,7 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test:ci
         env:
           ENGRAM_URL: http://localhost:47821
           DOT_WHATSAPP_ENGRAM_PROJECT: dot-whatsapp
@@ -30,42 +30,11 @@ jobs:
         with:
           name: test-results
           path: test-results/
-
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 11.5.0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build 2>/dev/null || echo "No build script; source-only project"
-
-  docker:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }} .
-      - name: Push to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - run: docker push ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }}
-      - run: docker tag ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }} ghcr.io/gentleman-programming/dot-whatsapp:latest
-      - run: docker push ghcr.io/gentleman-programming/dot-whatsapp:latest
+          if-no-files-found: warn
 
   conventional-commits:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,14 +49,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check conventional commits
         run: |
-          npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.event.pull_request.head.sha }} || {
+          pnpm exec commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.event.pull_request.head.sha }} || {
             echo "::error::Commit messages must follow Conventional Commits. See CONTRIBUTING.md"
             exit 1
           }
 
   validate-merge-commit:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -99,3 +68,24 @@ jobs:
             echo "::error::Merge commit must follow Conventional Commits: <type>: <summary>"
             exit 1
           fi
+
+# Docker image publishing is parked (S12, owner 2026-11-06): there is no root
+# Dockerfile, and ghcr.io/gentleman-programming/dot-whatsapp cannot exist until
+# Gentleman-Programming/dot-whatsapp is created (see docs/UPSTREAM_SETUP.md).
+# Restore this job in the delivery slice, together with the Dockerfile it needs.
+#
+#  docker:
+#    runs-on: ubuntu-latest
+#    needs: test
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Build Docker image
+#        run: docker build -t ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }} .
+#      - name: Push to GHCR
+#        uses: docker/login-action@v3
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#      - run: docker push ghcr.io/gentleman-programming/dot-whatsapp:${{ github.sha }}

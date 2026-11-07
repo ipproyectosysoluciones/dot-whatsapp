@@ -34,9 +34,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           COMMIT=$(git rev-parse HEAD)
-          STATUS=$(gh api repos/${{ github.repository }}/commits/${COMMIT}/status --jq '.state')
+          # GitHub Actions publishes check runs; the legacy commit status API stays pending.
+          STATUS=$(gh run list --repo "${{ github.repository }}" --commit "$COMMIT" \
+            --workflow CI --limit 1 --json conclusion --jq '.[0].conclusion // "missing"')
           if [ "$STATUS" != "success" ]; then
-            echo "CI not green for $COMMIT"
+            echo "CI not green for $COMMIT (conclusion: $STATUS)"
             exit 1
           fi
 
@@ -58,7 +60,7 @@ jobs:
       - name: Generate changelog (dry-run)
         id: changelog
         run: |
-          npx conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+          pnpm exec conventional-changelog -p angular -i CHANGELOG.md -s -r 0
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           cat CHANGELOG.md >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -112,7 +114,7 @@ jobs:
         id: release_body
         run: |
           cat << 'EOF' > release_body.md
-          dot-whatsapp v${{ github.ref_name#v }} is the first prototype release of the WhatsApp bridge for Gentle Dot.
+          dot-whatsapp ${{ github.ref_name }} is the first prototype release of the WhatsApp bridge for Gentle Dot.
 
           It extends Gentle Dot with an opt-in, separate bridge process that connects as a WebSocket client (protocol v1) and relays one allowlisted WhatsApp conversation. Gentle Dot itself never changes.
 

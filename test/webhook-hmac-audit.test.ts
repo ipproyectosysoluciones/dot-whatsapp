@@ -106,7 +106,7 @@ function postWebhook(port: number, body: string, signature?: string): Promise<{ 
 
 afterEach(async () => {
 	if (transport) await transport.stop();
-	if (graph) await new Promise<void>((done) => graph!.close(done));
+	if (graph) await new Promise<void>((done) => graph!.close(() => done()));
 	graph = undefined;
 });
 
