@@ -1,20 +1,15 @@
-# Unreleased
+# [0.2.0](https://github.com/ipproyectosysoluciones/dot-whatsapp/compare/v0.1.0...v0.2.0) (2026-11-07)
 
-Curated by hand — `pnpm changelog` only emits tagged releases; the release
-workflow regenerates this file when the next tag is cut.
 
 ### Bug Fixes
 
-* **rate-limit:** retry failed sends through the queue and cap attempts (S10, S11) — a failed immediate send is no longer lost; only the undelivered tail retries, `maxAttempts` (default 5) drops the message observably, `dispose()` settles pending promises
-* **rate-limit:** honor the logged backoff before the first retry of an immediate send (review finding R4-ImmediateSendRetryIgnoresBackoff)
-* **ci:** unblock `pnpm install` (pnpm 11 `allowBuilds` replaces legacy `onlyBuiltDependencies`), parse-breaking `ref_name#v` expression in release.yml, legacy commit-status gate, JUnit reporter, `.nvmrc`, parked docker job (S12)
-* **deps:** pin `follow-redirects` to 1.16.2 (GHSA high in <= 1.16.1, via baileys→axios)
-
-### Changed
-
-* typecheck now covers `test/` (tsconfig include), commitlint runs as a real devDependency without `npx`
-* documentation refresh: SECURITY policy, CONTRIBUTING (pnpm 11 dependency rules, current gaps), README, RUNBOOK
-
+* **ci:** unblock install, make every job real and park the docker job ([dd23818](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/dd23818754a2f4f908d949299e1681156035484b))
+* **deps:** pin follow-redirects to 1.16.2 (GHSA high in <= 1.16.1) ([78662e5](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/78662e5654061ca143142c2ca4ff6040bf541ece))
+* **rate-limit:** honor the logged backoff before the first retry ([a4d3ce5](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/a4d3ce51839651e4d2dbf06344956e4947dff88a))
+* **rate-limit:** retry failed sends through the queue and cap attempts ([48885f5](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/48885f5e66b0e04a6d959c7b2e694c94843730be))
+* **rate-limit:** settle pending promises on dispose ([32cee47](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/32cee47111ffd9320bfbe2a852eef0304e9c3453))
+* release workflow with gentle-ai style release body format ([e1e3a14](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/e1e3a1464391c1f0d165755bdda08e81c0dce1ed))
+* **release:** install pnpm before the setup-node pnpm cache ([6d00215](https://github.com/ipproyectosysoluciones/dot-whatsapp/commit/6d00215bda90bdeb77aee372719bf4b2fb2e9c00)), closes [ref_name#v](https://github.com/ref_name/issues/v)
 
 # [0.1.0](https://github.com/ipproyectosysoluciones/dot-whatsapp/compare/237a99c2497ff8912c81d130674ce42f20c98133...v0.1.0) (2026-10-31)
 
