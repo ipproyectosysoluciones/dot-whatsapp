@@ -4,3 +4,5 @@ allowBuilds:
   '@whiskeysockets/baileys': true
   libsignal-node: true
   protobufjs: true
+overrides:
+  follow-redirects: 1.16.2

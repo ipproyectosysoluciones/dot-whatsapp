@@ -258,17 +258,21 @@ describe("RateLimiter (P1-1)", () => {
 		expect(sendText).toHaveBeenCalledTimes(4); // first, bad x2, good
 	}, 10000);
 
-	it("stops processing the queue after dispose", async () => {
+	it("stops processing the queue after dispose and rejects pending promises", async () => {
 		const { limiter, transport } = createRateLimiter({ dailyLimit: 1, refillIntervalMs: 60_000 });
 
 		await limiter.send(TEST_NUMBER, "one");
-		limiter.send(TEST_NUMBER, "two").catch(() => {});
+		const pending = limiter.send(TEST_NUMBER, "two");
+		const pendingRejection = expect(pending).rejects.toThrow("RateLimiter disposed");
 
 		limiter.dispose();
 		grantTokens(limiter, TEST_NUMBER, 1);
 		await new Promise((r) => setTimeout(r, 250));
 
+		// Nothing queued is delivered after dispose, and no caller promise is left hanging.
 		expect(transport._sent).toHaveLength(1);
+		expect(limiter.getMetrics().totalQueued).toBe(0);
+		await pendingRejection;
 		limiter.dispose(); // idempotent
 	}, 10000);
 });
