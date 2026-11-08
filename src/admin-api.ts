@@ -14,8 +14,46 @@ import { randomBytes, timingSafeEqual } from "node:crypto";
 import { chmodSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { dirname } from "node:path";
+import { randomUUID } from "node:crypto";
 import { isValidE164 } from "./config.ts";
 import type { ChannelTransport, TransportStateEvent } from "./whatsapp.ts";
+
+/** Simple token-bucket rate limiter for admin API (per IP). */
+class AdminRateLimiter {
+	private readonly buckets = new Map<string, { tokens: number; lastRefill: number }>();
+	private readonly capacity: number;
+	private readonly refillPerSec: number;
+
+	constructor(capacity = 60, refillPerSec = 1) {
+		this.capacity = capacity;
+		this.refillPerSec = refillPerSec;
+	}
+
+	private refill(key: string): void {
+		const now = Date.now();
+		const bucket = this.buckets.get(key);
+		if (!bucket) return;
+		const elapsed = (now - bucket.lastRefill) / 1000;
+		if (elapsed >= 1) {
+			bucket.tokens = Math.min(this.capacity, bucket.tokens + elapsed * this.refillPerSec);
+			bucket.lastRefill = now;
+		}
+	}
+
+	tryConsume(key: string): boolean {
+		let bucket = this.buckets.get(key);
+		if (!bucket) {
+			bucket = { tokens: this.capacity, lastRefill: Date.now() };
+			this.buckets.set(key, bucket);
+		}
+		this.refill(key);
+		if (bucket.tokens >= 1) {
+			bucket.tokens -= 1;
+			return true;
+		}
+		return false;
+	}
+}
 
 export type AdminChannelState = "off" | "pairing" | "connected" | "error";
 export type ProviderType = "baileys" | "meta-cloud";
@@ -127,6 +165,9 @@ export interface AdminApi {
 export function createAdminApi(options: AdminApiOptions): AdminApi {
 	const log = options.log ?? (() => {});
 
+	// Admin API rate limiter: 60 req/min per IP, stricter for mutating endpoints
+	const rateLimiter = new AdminRateLimiter(60, 1);
+
 	let server: Server | undefined;
 
 	const readBody = (req: IncomingMessage): Promise<string> =>
@@ -164,7 +205,22 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 	};
 
 	const handle = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-		const path = new URL(req.url ?? "/", "http://127.0.0.1").pathname;
+		const url = new URL(req.url ?? "/", "http://127.0.0.1");
+		const path = url.pathname;
+		// Extract client IP (behind reverse proxy: x-forwarded-for, otherwise socket.remoteAddress)
+		const forwarded = req.headers["x-forwarded-for"];
+		const clientIp = (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : null) ??
+			req.socket.remoteAddress ??
+			"unknown";
+
+		// Rate limit mutating endpoints more strictly (10 req/min)
+		const mutating = req.method !== "GET" &&
+			(path.startsWith("/allowlist") || path.startsWith("/pair/") || path === "/verify" || path === "/unpair");
+		if (mutating && !rateLimiter.tryConsume(clientIp)) {
+			log(`admin rate limited: ${clientIp} on ${req.method} ${path}`);
+			sendJson(res, 429, { error: "rate limited" });
+			return;
+		}
 
 		if (!authorized(req)) {
 			sendJson(res, 401, { error: "unauthorized" });
