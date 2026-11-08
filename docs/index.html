@@ -82,6 +82,241 @@ body::before {
 .warning { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,165,36,0.15); border: 1px solid #F5A524; color: #F5A524; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
 
 /* Chat Bubble with Rose */
+/* Chat Demo - WhatsApp-style conversation */
+.chat-demo {
+  max-width: 380px;
+  margin: 0 auto 32px;
+}
+
+.phone-frame {
+  background: #0D0A0F;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(246,239,243,0.06);
+  overflow: hidden;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.chat-header {
+  background: linear-gradient(180deg, #0D0A0F 0%, #060407 100%);
+  border-bottom: 1px solid rgba(246,239,243,0.06);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  flex-shrink: 0;
+}
+
+.avatar-agent {
+  background: linear-gradient(135deg, #F43888 0%, #8B2E5C 100%);
+  color: #F6EFF3;
+}
+
+.header-info { flex: 1; min-width: 0; }
+.header-name {
+  font-weight: 600;
+  font-size: 17px;
+  color: #F6EFF3;
+  letter-spacing: -0.01em;
+}
+.header-status {
+  font-size: 13px;
+  color: #C9B8BF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #F43888;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.chat-messages {
+  padding: 20px;
+  max-height: 420px;
+  overflow-y: auto;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(244,56,136,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(215,160,184,0.02) 0%, transparent 50%);
+}
+
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 20px;
+  color: #C9B8BF;
+  font-size: 12px;
+  font-weight: 500;
+}
+.day-divider::before,
+.day-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,56,136,0.3), transparent);
+}
+
+.message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-group:nth-child(1) { animation-delay: 0.05s; }
+.message-group:nth-child(2) { animation-delay: 0.15s; }
+.message-group:nth-child(3) { animation-delay: 0.25s; }
+.message-group:nth-child(4) { animation-delay: 0.35s; }
+.message-group:nth-child(5) { animation-delay: 0.45s; }
+.message-group:nth-child(6) { animation-delay: 0.55s; }
+.message-group:nth-child(7) { animation-delay: 0.65s; }
+.message-group:nth-child(7) { animation-delay: 0.75s; }
+.message-group:nth-child(8) { animation-delay: 0.85s; }
+.message-group:nth-child(9) { animation-delay: 0.95s; }
+
+.message {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  line-height: 1.45;
+  font-size: 15px;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+.message.received {
+  align-self: flex-start;
+  background: #26353C;
+  border-bottom-left-radius: 4px;
+  color: #F6EFF3;
+}
+
+.message.sent {
+  align-self: flex-end;
+  background: #056162;
+  border-bottom-right-radius: 4px;
+  color: white;
+}
+
+.message.system {
+  align-self: center;
+  background: transparent;
+  color: #6B5B6E;
+  font-size: 12px;
+  padding: 6px 12px;
+  max-width: 90%;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message-time {
+  font-size: 11px;
+  opacity: 0.65;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: flex-end;
+}
+.message.received .message-time { justify-content: flex-start; }
+.message.sent .message-time { color: rgba(255,255,255,0.7); }
+
+.status-icon {
+  width: 14px; height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-icon svg { width: 14px; height: 14px; }
+
+.code-block {
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+  color: #F6EFF3;
+  border: 1px solid rgba(215,160,184,0.15);
+}
+.code-block .keyword { color: #F43888; }
+.code-block .string { color: #D7A0B8; }
+.code-block .comment { color: #C9B8BF; opacity: 0.7; }
+.code-block .function { color: #E8A5C1; }
+
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 20px;
+  color: #C9B8BF;
+  font-size: 12px;
+  font-weight: 500;
+}
+.day-divider::before,
+.day-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(244,56,136,0.3), transparent);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-group:nth-child(1) { animation-delay: 0.05s; }
+.message-group:nth-child(2) { animation-delay: 0.15s; }
+.message-group:nth-child(2) { animation-delay: 0.25s; }
+.message-group:nth-child(3) { animation-delay: 0.35s; }
+.message-group:nth-child(4) { animation-delay: 0.45s; }
+.message-group:nth-child(5) { animation-delay: 0.55s; }
+.message-group:nth-child(5) { animation-delay: 0.65s; }
+.message-group:nth-child(6) { animation-delay: 0.75s; }
+.message-group:nth-child(6) { animation-delay: 0.85s; }
+.message-group:nth-child(7) { animation-delay: 0.95s; }
+
+.hero h1 {.hero h1 { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 16px; background: linear-gradient(135deg, #F6EFF3 0%, #F095C8 50%, #FFD6E8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-tagline { font-size: clamp(1.25rem, 3vw, 1.75rem); color: #D7A0B8; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
+.hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+.btn-primary { background: linear-gradient(135deg, #F095C8 0%, #FF2D7A 100%); color: #1A1218; box-shadow: 0 16px 48px rgba(240,149,200,0.2); }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(240,149,200,0.35); }
+.btn-secondary { background: #2A1F28; color: #F6EFF3; border: 1px solid #342230; }
+.btn-secondary:hover { border-color: #F095C8; background: #231820; }
+.hero-stats { display: flex; gap: 64px; justify-content: center; flex-wrap: wrap; padding-top: 40px; border-top: 1px solid #342230; }
+.stat { text-align: center; }
+.stat-value { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #F095C8, #FFD6E8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-label { font-size: 0.875rem; color: #7A6B78; }
+
+/* Warning Banner */
+.warning { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,165,36,0.15); border: 1px solid #F5A524; color: #F5A524; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
+
+/* Chat Bubble with Rose */
 .chat-bubble {
   position: relative;
   display: inline-block;
@@ -289,24 +524,139 @@ body::before {
         <span>v0.2.0 · Prototype · MIT License</span>
       </div>
 
-      <div class="chat-bubble" role="img" aria-label="WhatsApp message bubble with Gentle rose">
-        <!-- WhatsApp-style message bubble (received) -->
-        <div class="chat-message received">
-          <div class="message-bubble">
-            <!-- Official Gentle Rose from design brief (inline SVG) -->
-            <svg class="chat-bubble__rose" viewBox="0 0 100 100" width="100" height="100" aria-hidden="true" aria-label="Gentle rose">
-              <!-- Outer circle -->
-              <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
-              <!-- Petal path (neon glow) -->
-              <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" 
-                    stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
-              <!-- Filled rose center -->
-              <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
-            </svg>
-            <div class="message-time">
-              <span class="status-read"><svg viewBox="0 0 24 24" fill="none" stroke="#53B778" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#53B778" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg></span>
-              <span class="time-text">Ahora</span>
+      <!-- WhatsApp-style conversation demo -->
+      <div class="chat-demo" role="region" aria-label="WhatsApp conversation demo" style="max-width: 380px; margin: 0 auto 32px;">
+        <div class="phone-frame" style="background: #0D0A0F; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(246,239,243,0.06); overflow: hidden; max-width: 380px; margin: 0 auto;">
+          <!-- Chat header -->
+          <div class="chat-header" style="background: linear-gradient(180deg, #0D0A0F 0%, #060407 100%); border-bottom: 1px solid rgba(246,239,243,0.06); padding: 16px 20px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 10;">
+            <div class="avatar" style="width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; font-family: 'Space Grotesk', sans-serif; flex-shrink: 0; background: linear-gradient(135deg, #F43888 0%, #8B2E5C 100%); color: #F6EFF3;">GW</div>
+            <div class="header-info" style="flex: 1; min-width: 0;">
+              <div class="header-name" style="font-weight: 600; font-size: 17px; color: #F6EFF3; letter-spacing: -0.01em;">Gentle WhatsApp Bridge</div>
+              <div class="header-status" style="font-size: 13px; color: #C9B8BF; display: flex; align-items: center; gap: 6px;">
+                <span class="status-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #F43888; animation: pulse 2s ease-in-out infinite;"></span>
+                <span>Conectado · v0.2.0</span>
+              </div>
             </div>
+          </div>
+
+          <!-- Chat messages -->
+          <div class="chat-messages" style="padding: 20px; max-height: 420px; overflow-y: auto; background-image: radial-gradient(ellipse at 20% 10%, rgba(244,56,136,0.03) 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(215,160,184,0.02) 0%, transparent 50%);">
+
+            <!-- Day divider -->
+            <div class="day-divider" style="display: flex; align-items: center; gap: 12px; margin: 12px 0 20px; color: #C9B8BF; font-size: 12px; font-weight: 500;">
+              <span style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(244,56,136,0.3), transparent);"></span>
+              <span>Hoy</span>
+              <span style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(244,56,136,0.3), transparent);"></span>
+            </div>
+
+            <!-- System message -->
+            <div class="message-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; animation: fadeInUp 0.4s ease-out backwards;">
+              <div class="message system" style="align-self: center; background: transparent; color: #6B5B6E; font-size: 12px; padding: 6px 12px; max-width: 90%; text-align: center; font-weight: 500;">
+                🔐 Bridge conectado · Engram sincronizado · Allowlist activa
+              </div>
+            </div>
+
+            <!-- User message (sent - green) -->
+            <div class="message-group" style="animation-delay: 0.1s;">
+              <div class="message sent" style="align-self: flex-end; background: #056162; border-bottom-right-radius: 4px; color: white; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                Hola, ¿cómo estás?
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-end; color: rgba(255,255,255,0.7);">
+                  10:30
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridge response (received - gray) -->
+            <div class="message-group" style="animation-delay: 0.2s;">
+              <div class="message received" style="align-self: flex-start; background: #26353C; border-bottom-left-radius: 4px; color: #F6EFF3; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                ¡Hola! 👋 Soy el bridge de Gentle WhatsApp. Estoy conectado y listo para relayar tus mensajes al daemon.
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-start; color: #8696A0;">
+                  10:30:05
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- User asks about providers -->
+            <div class="message-group" style="animation-delay: 0.3s;">
+              <div class="message sent" style="align-self: flex-end; background: #056162; border-bottom-right-radius: 4px; color: white; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                ¿Qué proveedores soportas?
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-end; color: rgba(255,255,255,0.7);">
+                  10:31
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridge explains providers with code block -->
+            <div class="message-group" style="animation-delay: 0.4s;">
+              <div class="message received" style="align-self: flex-start; background: #26353C; border-bottom-left-radius: 4px; color: #F6EFF3; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                Soporto <b>dos proveedores</b>:
+                <div class="code-block" style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 10px; margin: 6px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.5; overflow-x: auto; white-space: pre; color: #F6EFF3; border: 1px solid rgba(215,160,184,0.15);">
+1. <span class="keyword">Baileys</span> — WhatsApp Web no oficial
+   QR pairing · Gratis · Riesgo de ban
+
+2. <span class="keyword">Meta Cloud API</span> — Oficial
+   Webhook + Graph API · Requiere Meta Business
+                </div>
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-start; color: #8696A0;">
+                  10:31:02
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- User asks about allowlist -->
+            <div class="message-group" style="animation-delay: 0.5s;">
+              <div class="message sent" style="align-self: flex-end; background: #056162; border-bottom-right-radius: 4px; color: white; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                ¿Cómo configuro la allowlist?
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-end; color: rgba(255,255,255,0.7);">
+                  10:32
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridge explains allowlist -->
+            <div class="message-group" style="animation-delay: 0.6s;">
+              <div class="message received" style="align-self: flex-start; background: #26353C; border-bottom-left-radius: 4px; color: #F6EFF3; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                La <b>allowlist</b> se gestiona via Admin API (127.0.0.1:4407):
+                <div class="code-block" style="background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 10px; margin: 6px 0 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.5; overflow-x: auto; white-space: pre; color: #F6EFF3; border: 1px solid rgba(215,160,184,0.15);">
+GET    /allowlist           — listar números
+POST   /allowlist           — agregar número {action:"add", number:"+54911..."}
+DELETE /allowlist           — quitar número {action:"remove", number:"..."}
+                </div>
+                <p style="margin-top: 8px; font-size: 14px;">Los números se guardan en <code>~/.dot-whatsapp/allowlist.json</code> (0600) y persisten tras reinicios.</p>
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-start; color: #8696A0;">
+                  10:32:10
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- User thanks -->
+            <div class="message-group" style="animation-delay: 0.7s;">
+              <div class="message sent" style="align-self: flex-end; background: #056162; border-bottom-right-radius: 4px; color: white; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                Perfecto, gracias 👍
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-end; color: rgba(255,255,255,0.7);">
+                  10:33
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bridge closing -->
+            <div class="message-group" style="animation-delay: 0.8s;">
+              <div class="message received" style="align-self: flex-start; background: #26353C; border-bottom-left-radius: 4px; color: #F6EFF3; max-width: 78%; padding: 10px 14px; border-radius: 18px; line-height: 1.45; font-size: 15px; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.35);">
+                ¡De nada! El bridge queda escuchando. Cualquier mensaje que reciba en el número configurado lo relayaré al daemon y te responderé aquí. 🌹
+                <div class="message-time" style="font-size: 11px; opacity: 0.65; margin-top: 4px; display: flex; align-items: center; gap: 5px; justify-content: flex-start; color: #8696A0;">
+                  10:33:05
+                  <span class="status-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg></span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
