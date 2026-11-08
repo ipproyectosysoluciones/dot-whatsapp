@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "chosen": "02-minimal-hero.html",
+  "handoffs": {
+    "02-minimal-hero.html": {
+      "status": "implemented",
+      "queued": true,
+      "sentAt": "2026-11-08T05:55:45.098Z",
+      "startedAt": "2026-11-08T06:01:16.374Z",
+      "implementedAt": "2026-11-08T06:03:08.145742Z",
+      "feature": "odd/tasks/dot-whatsapp.md",
+      "previewUrl": "https://gentleman-programming.github.io/dot-whatsapp/"
+    }
+  }
+}

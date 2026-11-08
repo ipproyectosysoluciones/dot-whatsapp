@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dot-whatsapp — Your Gentle Dot Assistant, One WhatsApp Message Away</title>
+<meta name="description" content="Opt-in WhatsApp bridge for the Gentle Dot assistant. Standalone bridge package.">
+<style>
+:root {
+  --bg-deep: #1A1218;
+  --bg-elevated: #231820;
+  --bg-card: #2A1F28;
+  --accent-rose: #F095C8;
+  --accent-rose-muted: #D7A0B8;
+  --accent-neon: #FF2D7A;
+  --accent-core: #FFD6E8;
+  --amber: #F5A524;
+  --text-primary: #F6EFF3;
+  --text-muted: #A78E9B;
+  --text-dim: #7A6B78;
+  --border: #342230;
+  --glow-rose: rgba(240, 149, 200, 0.15);
+  --glow-rose-strong: rgba(240, 149, 200, 0.3);
+  --glow-neon: rgba(255, 45, 122, 0.25);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-lg: 0 16px 48px rgba(240, 149, 200, 0.15);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+  --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px; --space-3xl: 64px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(240,149,200,0.2) 0%, transparent 70%), var(--bg-deep);
+  z-index: -2;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+.skip-link { position: absolute; top: -100%; left: 24px; background: #F095C8; color: #1A1218; padding: 8px 16px; border-radius: 6px; font-weight: 600; z-index: 1000; }
+.skip-link:focus { top: 24px; }
+
+/* Minimal Header */
+.header { position: sticky; top: 0; z-index: 100; background: rgba(26,18,24,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid #342230; }
+.header-inner { max-width: 900px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: #F6EFF3; font-weight: 700; font-size: 1.125rem; }
+.logo-accent { color: #F095C8; }
+.github-link { padding: 6px 16px; border: 1px solid #342230; border-radius: 12px; color: #A78E9B; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+.github-link:hover { border-color: #F095C8; color: #F095C8; background: rgba(240,149,200,0.1); }
+
+/* Hero */
+.hero { padding: 80px 0 60px; text-align: center; position: relative; }
+.hero::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 500px; height: 500px; background: radial-gradient(circle, rgba(240,149,200,0.3) 0%, transparent 70%); border-radius: 50%; z-index: -1; animation: pulse 6s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); } }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: #2A1F28; border: 1px solid #342230; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; color: #F5A524; margin-bottom: 24px; }
+.hero-badge::before { content: ""; width: 8px; height: 8px; background: #F5A524; border-radius: 50%; }
+.rose-glyph { width: 140px; height: 140px; margin: 0 auto 32px; filter: drop-shadow(0 0 40px #F095C8) drop-shadow(0 0 80px rgba(255,45,122,0.3)); animation: float 4s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.hero h1 { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 16px; background: linear-gradient(135deg, #F6EFF3 0%, #F095C8 50%, #FFD6E8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-tagline { font-size: clamp(1.25rem, 3vw, 1.75rem); color: #D7A0B8; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
+.hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+.btn-primary { background: linear-gradient(135deg, #F095C8 0%, #FF2D7A 100%); color: #1A1218; box-shadow: 0 16px 48px rgba(240,149,200,0.2); }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(240,149,200,0.35); }
+.btn-secondary { background: #2A1F28; color: #F6EFF3; border: 1px solid #342230; }
+.btn-secondary:hover { border-color: #F095C8; background: #231820; }
+.hero-stats { display: flex; gap: 64px; justify-content: center; flex-wrap: wrap; padding-top: 40px; border-top: 1px solid #342230; }
+.stat { text-align: center; }
+.stat-value { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #F095C8, #FFD6E8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-label { font-size: 0.875rem; color: #7A6B78; }
+
+/* Warning Banner */
+.warning { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,165,36,0.15); border: 1px solid #F5A524; color: #F5A524; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
+
+/* Install Section */
+.install-section { padding: 60px 0; border-top: 1px solid #342230; border-bottom: 1px solid #342230; }
+.section-header { text-align: center; margin-bottom: 40px; }
+.section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #F095C8; margin-bottom: 8px; display: block; }
+.section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 12px; }
+.section-desc { color: #A78E9B; max-width: 600px; margin: 0 auto; font-size: 1.125rem; }
+.install-steps { display: flex; flex-direction: column; gap: 16px; max-width: 700px; margin: 0 auto; }
+.step { display: flex; gap: 24px; background: #2A1F28; border: 1px solid #342230; border-radius: 16px; padding: 20px 24px; transition: all 0.2s; }
+.step:hover { border-color: #F095C8; }
+.step-number { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #F095C8, #FF2D7A); color: #1A1218; font-weight: 800; font-size: 1.25rem; flex-shrink: 0; }
+.step-title { font-weight: 700; margin-bottom: 4px; }
+.step-desc { color: #A78E9B; font-size: 0.9rem; }
+.step-code { background: #1A1218; border: 1px solid #342230; border-radius: 6px; padding: 8px 16px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.85rem; color: #D7A0B8; margin-top: 8px; display: block; }
+
+/* Links */
+.links-section { padding: 60px 0; }
+.links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.link-card { display: flex; flex-direction: column; gap: 16px; background: #2A1F28; border: 1px solid #342230; border-radius: 16px; padding: 24px; text-decoration: none; color: inherit; transition: all 0.2s; }
+.link-card:hover { border-color: #F095C8; transform: translateY(-4px); box-shadow: 0 16px 48px rgba(240,149,200,0.15); }
+.link-icon { width: 44px; height: 44px; color: #F095C8; }
+.link-title { font-weight: 700; font-size: 1.125rem; }
+.link-desc { color: #A78E9B; font-size: 0.9rem; line-height: 1.6; }
+
+/* Footer */
+.footer { background: #231820; border-top: 1px solid #342230; padding: 60px 0 24px; }
+.footer-inner { max-width: 900px; margin: 0 auto 32px; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 48px; justify-content: space-between; }
+.footer-brand p { color: #A78E9B; max-width: 300px; line-height: 1.7; margin-top: 16px; }
+.footer-links { display: flex; flex-direction: column; gap: 8px; }
+.footer-links a { color: #A78E9B; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+.footer-links a:hover { color: #F095C8; }
+.footer-bottom { max-width: 900px; margin: 0 auto; padding: 24px 24px 0; border-top: 1px solid #342230; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.footer-copyright { color: #7A6B78; font-size: 0.85rem; }
+.footer-social { display: flex; gap: 24px; }
+.footer-social a { color: #7A6B78; transition: color 0.2s; }
+.footer-social a:hover { color: #F095C8; }
+.footer-social svg { width: 20px; height: 20px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+@media (max-width: 640px) { .header-inner { flex-direction: column; gap: 12px; } .github-link { order: -1; } .hero { padding: 60px 0 40px; } .step { flex-direction: column; gap: 12px; } .step-number { align-self: flex-start; } .footer-inner { flex-direction: column; gap: 32px; } .footer-bottom { flex-direction: column; text-align: center; } }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="header" role="banner">
+  <div class="header-inner">
+    <a href="#" class="logo" aria-label="dot-whatsapp home">
+      <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
+        <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
+        <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
+      </svg>
+      <span class="logo-text">dot-whatsapp<span class="logo-accent">.</span></span>
+    </a>
+    <a href="https://github.com/Gentleman-Programming/dot-whatsapp" class="github-link" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.305-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.931.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-content">
+      <div class="warning" role="status">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <span>Standalone bridge package — NOT a Gentle Shell extension</span>
+      </div>
+      
+      <div class="hero-badge">
+        <span>v0.2.0 · Prototype · MIT License</span>
+      </div>
+
+      <svg class="rose-glyph" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
+        <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
+        <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
+      </svg>
+
+      <h1 id="hero-title">dot-whatsapp</h1>
+      <p class="hero-tagline">Your Gentle Dot assistant, one WhatsApp message away.</p>
+      
+      <div class="hero-cta">
+        <a href="#install" class="btn btn-primary">Get Started</a>
+        <a href="https://github.com/Gentleman-Programming/dot-whatsapp" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-value">103/103</div>
+          <div class="stat-label">Tests</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">2</div>
+          <div class="stat-label">Providers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0.2.0</div>
+          <div class="stat-label">Release</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="install-section" aria-labelledby="install-title">
+    <div class="container">
+      <header class="section-header">
+        <span class="section-label">Installation</span>
+        <h2 id="install-title" class="section-title">Three commands to a running bridge</h2>
+        <p class="section-desc">The Gentle Dot daemon must already be running at <code>ws://127.0.0.1:4317/ws</code>.</p>
+      </header>
+      
+      <div class="install-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-title">Clone & install</div>
+            <div class="step-desc">Clone the repo and install dependencies with pnpm (corepack).</div>
+            <code class="step-code">git clone https://github.com/Gentleman-Programming/dot-whatsapp.git<br>cd dot-whatsapp<br>pnpm install --frozen-lockfile</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-title">Configure environment</div>
+            <div class="step-desc">Copy the example and edit with your allowlist, provider, and tokens.</div>
+            <code class="step-code">cp .env.example .env<br># Edit .env with your values</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-title">Test run (QR pairing)</div>
+            <div class="step-desc">Run manually first to scan the QR code with WhatsApp on your phone.</div>
+            <code class="step-code">pnpm start:env</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <div class="step-title">Install as systemd service</div>
+            <div class="step-desc">Enable persistent user service with auto-restart on failure.</div>
+            <code class="step-code">systemctl --user enable --now dot-whatsapp.service</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Links -->
+  <section class="links-section" aria-labelledby="links-title">
+    <div class="container">
+      <header class="section-header" style="text-align:center; margin-bottom:32px;">
+        <span class="section-label">Resources</span>
+        <h2 id="links-title" class="section-title">Documentation & links</h2>
+      </header>
+      <div class="links-grid">
+        <a href="https://github.com/Gentleman-Programming/dot-whatsapp" class="link-card" target="_blank" rel="noopener">
+          <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.305-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.931.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          <h3 class="link-title">GitHub Repository</h3>
+          <p class="link-desc">Source code, issues, releases, and contributing guide.</p>
+        </a>
+        <a href="https://github.com/Gentleman-Programming/dot-whatsapp/releases/tag/v0.2.0" class="link-card" target="_blank" rel="noopener">
+          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15v-6M9 12h6"/></svg>
+          <h3 class="link-title">Release v0.2.0</h3>
+          <p class="link-desc">Maintenance release: green CI, bounded rate-limit, security pin.</p>
+        </a>
+        <a href="docs/RUNBOOK.md" class="link-card">
+          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <h3 class="link-title">Runbook</h3>
+          <p class="link-desc">Operations guide: systemd, logs, upgrades, troubleshooting.</p>
+        </a>
+        <a href="https://github.com/Gentleman-Programming/gentle-dot" class="link-card" target="_blank" rel="noopener">
+          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 1 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <h3 class="link-title">Gentle Dot (daemon)</h3>
+          <p class="link-desc">The assistant daemon this bridge connects to.</        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo" aria-label="dot-whatsapp home">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
+            <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
+            <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
+          </svg>
+          <span class="logo-text">dot-whatsapp<span class="logo-accent">.</span></span>
+        </a>
+        <p>Standalone WhatsApp bridge for the Gentle Dot assistant. Not a Gentle Shell extension.</p>
+      </div>
+      <div>
+        <h4 class="footer-title" style="font-weight:700; margin-bottom:12px; color:#F6EFF3;">Quick Links</h4>
+        <nav class="footer-links">
+          <a href="https://github.com/Gentleman-Programming/dot-whatsapp" target="_blank" rel="noopener">GitHub Repository</a>
+          <a href="https://github.com/Gentleman-Programming/dot-whatsapp/releases/tag/v0.2.0" target="_blank" rel="noopener">Release v0.2.0</a>
+          <a href="docs/RUNBOOK.md">Runbook</a>
+          <a href="SECURITY.md">Security Policy</a>
+        </nav>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copyright">© 2026 Gentleman Programming. MIT License. Built with <a href="https://github.com/Gentleman-Programming/gentle-ai" style="color:#F095C8;">Gentle AI</a>.</p>
+      <div class="footer-social">
+        <a href="https://github.com/Gentleman-Programming" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.305-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.931.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg></a>
+        <a href="https://gentlemanprogramming.com" target="_blank" rel="noopener" aria-label="Website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2v20"/></svg></a>
+      </div>
+    </div>
+  </footer>
+</main>
+</body>
+</html>
