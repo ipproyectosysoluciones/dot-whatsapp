@@ -187,30 +187,39 @@ sequenceDiagram
 
 ## Get started
 
+### What this is (and isn't)
+
+| This **is** | This **is not** |
+|-------------|-----------------|
+| A standalone bridge package (separate process) | A Gentle Shell extension |
+| A systemd user service | A Gentle Shell plugin/extension |
+| A WebSocket client to the Gentle Dot daemon | Part of the Gentle Dot daemon itself |
+| Controlled via Admin API by the gentle-dot Channels panel | Installed inside Gentle Shell |
+
 ### Prerequisites
 
+- **Gentle Dot daemon already running** at `ws://127.0.0.1:4317/ws` (see [gentle-dot](https://github.com/Gentleman-Programming/gentle-dot))
+- **Engram server** at `http://127.0.0.1:47821` (project `dot-whatsapp`)
 - Node.js ≥ 22.18 (pinned via corepack pnpm 11.5.0)
-- Gentle Dot daemon running (`ws://127.0.0.1:4317/ws`)
-- Engram server (`http://127.0.0.1:47821`, project `dot-whatsapp`)
-- **For Baileys:** A dedicated phone number, WhatsApp installed
-- **For Meta Cloud:** Meta Business account, public webhook URL (HTTPS), Meta App credentials
+- **For Baileys:** A dedicated phone number with WhatsApp installed
+- **For Meta Cloud:** Meta Business account, public HTTPS webhook URL, Meta App credentials
 
 ### Quick install
 
 ```bash
-# Clone and install
+# 1. Clone and install (standalone package)
 git clone https://github.com/Gentleman-Programming/dot-whatsapp.git
 cd dot-whatsapp
 pnpm install --frozen-lockfile
 
-# Configure
+# 2. Configure environment
 cp .env.example .env
 # Edit .env with your values (see below)
 
-# Test run (QR pairing for Baileys)
+# 3. Test run (QR pairing for Baileys)
 pnpm start:env
 
-# Install systemd service
+# 4. Install as systemd user service (persistent)
 systemctl --user enable --now dot-whatsapp.service
 ```
 
