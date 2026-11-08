@@ -25,6 +25,8 @@ export interface MetaCloudConfig {
 	webhookHost: string;
 	graphUrl: string;
 	graphVersion: string;
+	/** Outbound Graph API request timeout in ms (default 10000). */
+	graphTimeoutMs?: number;
 	/** Test seam: the actual bound webhook port after start(). */
 	onListening?: (port: number) => void;
 }
@@ -149,11 +151,12 @@ export function createMetaCloudTransport(options: {
 		},
 		async sendText(toNumber: string, text: string): Promise<void> {
 			const url = `${meta.graphUrl}/${meta.graphVersion}/${meta.phoneNumberId}/messages`;
+			const timeoutMs = meta.graphTimeoutMs ?? 10_000;
 			const response = await fetch(url, {
 				method: "POST",
 				headers: { "content-type": "application/json", authorization: `Bearer ${meta.token}` },
 				body: JSON.stringify({ messaging_product: "whatsapp", to: toNumber, type: "text", text: { body: text } }),
-				signal: AbortSignal.timeout(10_000),
+				signal: AbortSignal.timeout(timeoutMs),
 			});
 			if (!response.ok) {
 				const detail = await response.text().catch(() => "");
