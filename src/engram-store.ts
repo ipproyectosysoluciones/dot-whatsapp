@@ -13,6 +13,12 @@ import { promisify } from "node:util";
 
 const run = promisify(execFile);
 
+// M4: SECURITY NOTE — Engram CLI subprocess trust
+// The engram CLI is invoked as a trusted subprocess for all storage operations.
+// If the CLI binary is replaced or PATH is hijacked, arbitrary code execution occurs.
+// Mitigations in place: systemd unit restricts PATH and ReadWritePaths; binary pinned in CI.
+// For stronger assurance, pin full path to engram binary or migrate to HTTP/MCP API when stable.
+
 export class EngramUnavailable extends Error {}
 
 export interface EngramLike {

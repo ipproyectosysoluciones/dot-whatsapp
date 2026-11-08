@@ -1,4 +1,21 @@
 /**
+ * SPIKE T4 — DEVELOPMENT ONLY — NOT FOR PRODUCTION USE
+ *
+ * This spike echoes ALL messages in the "Message yourself" chat WITHOUT ANY ALLOWLIST.
+ * If accidentally run in production (e.g., via `node src/spike.ts`), it would relay
+ * messages from ANY contact to itself.
+ *
+ * PRODUCTION BLOCKERS:
+ * - No allowlist enforcement
+ * - No authentication
+ * - No rate limiting
+ * - No idempotency
+ * - Hardcoded auth dir in home
+ *
+ * To run locally: DOT_WHATSAPP_AUTH_DIR=/tmp/spike-auth node scripts/spike.ts
+ * (requires manual QR pairing each run unless auth dir persists)
+ */
+/**
  * Spike T4: Baileys raw, QR pairing once, echo ONLY in the account's own
  * "Message yourself" chat (no third-party numbers touched, nothing allowlisted
  * beyond the linked account itself). Proves QR → connect → receive → send.
