@@ -81,6 +81,88 @@ body::before {
 /* Warning Banner */
 .warning { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,165,36,0.15); border: 1px solid #F5A524; color: #F5A524; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
 
+/* Chat Bubble with Rose */
+.chat-bubble {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto 32px;
+}
+.chat-bubble__tail {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 14px solid #2A1F28;
+}
+.chat-bubble__body {
+  position: relative;
+  background: #2A1F28;
+  border: 2px solid #F095C8;
+  border-radius: 24px;
+  padding: 24px;
+  min-width: 160px;
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 0 40px rgba(240, 149, 200, 0.3),
+    0 0 80px rgba(255, 45, 122, 0.15),
+    inset 0 0 60px rgba(255, 45, 122, 0.1);
+}
+.chat-bubble__body::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 20px;
+  border: 1px solid #FF2D7A;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.chat-bubble__rose {
+  width: 120px;
+  height: 120px;
+  filter: drop-shadow(0 0 30px #F095C8) drop-shadow(0 0 60px rgba(255,45,122,0.4));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* Status indicator (double check) */
+.chat-bubble__status {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  display: flex;
+  gap: 2px;
+  opacity: 0.7;
+}
+.chat-bubble__check {
+  width: 16px;
+  height: 16px;
+  stroke: #F095C8;
+  stroke-width: 2.5;
+}
+
+.hero h1 { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 16px; background: linear-gradient(135deg, #F6EFF3 0%, #F095C8 50%, #FFD6E8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-tagline { font-size: clamp(1.25rem, 3vw, 1.75rem); color: #D7A0B8; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
+.hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; border-radius: 12px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+.btn-primary { background: linear-gradient(135deg, #F095C8 0%, #FF2D7A 100%); color: #1A1218; box-shadow: 0 16px 48px rgba(240,149,200,0.2); }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 24px 56px rgba(240,149,200,0.35); }
+.btn-secondary { background: #2A1F28; color: #F6EFF3; border: 1px solid #342230; }
+.btn-secondary:hover { border-color: #F095C8; background: #231820; }
+.hero-stats { display: flex; gap: 64px; justify-content: center; flex-wrap: wrap; padding-top: 40px; border-top: 1px solid #342230; }
+.stat { text-align: center; }
+.stat-value { font-size: 3rem; font-weight: 800; background: linear-gradient(135deg, #F095C8, #FFD6E8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-label { font-size: 0.875rem; color: #7A6B78; }
+
+/* Warning Banner */
+.warning { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,165,36,0.15); border: 1px solid #F5A524; color: #F5A524; padding: 6px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-bottom: 24px; }
+
 /* Install Section */
 .install-section { padding: 60px 0; border-top: 1px solid #342230; border-bottom: 1px solid #342230; }
 .section-header { text-align: center; margin-bottom: 40px; }
@@ -95,12 +177,39 @@ body::before {
 .step-desc { color: #A78E9B; font-size: 0.9rem; }
 .step-code { background: #1A1218; border: 1px solid #342230; border-radius: 6px; padding: 8px 16px; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.85rem; color: #D7A0B8; margin-top: 8px; display: block; }
 
-/* Links */
+/* Links Section - Fixed Grid */
 .links-section { padding: 60px 0; }
-.links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-.link-card { display: flex; flex-direction: column; gap: 16px; background: #2A1F28; border: 1px solid #342230; border-radius: 16px; padding: 24px; text-decoration: none; color: inherit; transition: all 0.2s; }
+.section-header { text-align: center; margin-bottom: 40px; }
+.section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #F095C8; margin-bottom: 8px; display: block; }
+.section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 12px; }
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) {
+  .links-grid { grid-template-columns: 1fr; max-width: 400px; }
+}
+.link-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #2A1F28;
+  border: 1px solid #342230;
+  border-radius: 16px;
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 .link-card:hover { border-color: #F095C8; transform: translateY(-4px); box-shadow: 0 16px 48px rgba(240,149,200,0.15); }
-.link-icon { width: 44px; height: 44px; color: #F095C8; }
+.link-icon { width: 44px; height: 44px; color: #F095C8; flex-shrink: 0; }
+.link-content { display: flex; flex-direction: column; gap: 8px; flex: 1; }
 .link-title { font-weight: 700; font-size: 1.125rem; }
 .link-desc { color: #A78E9B; font-size: 0.9rem; line-height: 1.6; }
 
@@ -119,7 +228,15 @@ body::before {
 .footer-social svg { width: 20px; height: 20px; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
-@media (max-width: 640px) { .header-inner { flex-direction: column; gap: 12px; } .github-link { order: -1; } .hero { padding: 60px 0 40px; } .step { flex-direction: column; gap: 12px; } .step-number { align-self: flex-start; } .footer-inner { flex-direction: column; gap: 32px; } .footer-bottom { flex-direction: column; text-align: center; } }
+@media (max-width: 640px) { 
+  .header-inner { flex-direction: column; gap: 12px; } 
+  .github-link { order: -1; } 
+  .hero { padding: 60px 0 40px; } 
+  .step { flex-direction: column; gap: 12px; } 
+  .step-number { align-self: flex-start; } 
+  .footer-inner { flex-direction: column; gap: 32px; } 
+  .footer-bottom { flex-direction: column; text-align: center; } 
+}
 </style>
 </head>
 <body>
@@ -155,11 +272,17 @@ body::before {
         <span>v0.2.0 · Prototype · MIT License</span>
       </div>
 
-      <svg class="rose-glyph" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
-        <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
-        <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
-      </svg>
+      <div class="chat-bubble" role="img" aria-label="WhatsApp message bubble with Gentle rose">
+        <div class="chat-bubble__tail"></div>
+        <div class="chat-bubble__body">
+          <img class="chat-bubble__rose" src="assets/gentle-rose.png" alt="Gentle rose logo" loading="lazy" />
+        </div>
+        <!-- Status indicator (double check like WhatsApp) -->
+        <div class="chat-bubble__status" aria-label="Message delivered and read">
+          <svg class="chat-bubble__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg>
+          <svg class="chat-bubble__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg>
+        </div>
+      </div>
 
       <h1 id="hero-title">dot-whatsapp</h1>
       <p class="hero-tagline">Your Gentle Dot assistant, one WhatsApp message away.</p>
@@ -232,7 +355,7 @@ body::before {
     </div>
   </section>
 
-  <!-- Quick Links -->
+  <!-- Quick Links - Fixed Grid with 3 cards -->
   <section class="links-section" aria-labelledby="links-title">
     <div class="container">
       <header class="section-header" style="text-align:center; margin-bottom:32px;">
@@ -241,24 +364,25 @@ body::before {
       </header>
       <div class="links-grid">
         <a href="https://github.com/Gentleman-Programming/dot-whatsapp" class="link-card" target="_blank" rel="noopener">
-          <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.305-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.931.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-          <h3 class="link-title">GitHub Repository</h3>
-          <p class="link-desc">Source code, issues, releases, and contributing guide.</p>
+          <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.305-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.931.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          <div class="link-content">
+            <h3 class="link-title">GitHub Repository</h3>
+            <p class="link-desc">Source code, issues, releases, and contributing guide.</          </div>
         </a>
         <a href="https://github.com/Gentleman-Programming/dot-whatsapp/releases/tag/v0.2.0" class="link-card" target="_blank" rel="noopener">
           <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 15v-6M9 12h6"/></svg>
-          <h3 class="link-title">Release v0.2.0</h3>
-          <p class="link-desc">Maintenance release: green CI, bounded rate-limit, security pin.</p>
+          <div class="link-content">
+            <h3 class="link-title">Release v0.2.0</h3>
+            <p class="link-desc">Maintenance release: green CI, bounded rate-limit, security pin.
+          </div>
         </a>
         <a href="docs/RUNBOOK.md" class="link-card">
           <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <h3 class="link-title">Runbook</h3>
-          <p class="link-desc">Operations guide: systemd, logs, upgrades, troubleshooting.</p>
+          <div class="link-content">
+            <h3 class="link-title">Runbook</h3>
+            <p class="link-desc">Operations guide: systemd, logs, upgrades, troubleshooting.
+          </div>
         </a>
-        <a href="https://github.com/Gentleman-Programming/gentle-dot" class="link-card" target="_blank" rel="noopener">
-          <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 1 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          <h3 class="link-title">Gentle Dot (daemon)</h3>
-          <p class="link-desc">The assistant daemon this bridge connects to.</        </a>
       </div>
     </div>
   </section>
