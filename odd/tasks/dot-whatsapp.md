@@ -84,6 +84,8 @@ Engram mirror topic: `dot-whatsapp-study`
 
 - **L27 (2026-11-07, cierre del release):** primer tag v0.2.0 falló en preflight (setup-node cache pnpm sin pnpm/action-setup); fix en commit `6d00215` → PR #6 mergeado → tag movido a `1377cace` (CI verde) → release workflow `42347654536` **success** (preflight/release/verify). Release publicado: https://github.com/ipproyectosysoluciones/dot-whatsapp/releases/tag/v0.2.0. Alerta Dependabot (follow-redirects) cerrada al mergear la cadena. CHANGELOG 0.2.0 regenerado por el release workflow.
 
+- **L28 (2026-11-07, cierre upstream):** PRs #151–#154 en `Gentleman-Programming/gentle-dot` documentados con estado de merge. Rama `dev` no existe en upstream; token sin permisos `CreateBranch`. 4 PRs mergeables a `main` desde fork `ipproyectosysoluciones/gentle-dot` (branches `pr/gt1-gt2`, `pr/gt3`, `pr/gt4`, `pr/t11-daemon` en worktree local `gentle-dot-beta`). Documentado en comentarios de cada PR (opciones A/B/C). Merge queda pendiente de decisión del dueño (crear `dev` en upstream, merge directo a main con 4 approvals, o esperar).
+
 ## Beta-tester workspace (soporte)
 - Home escaneos: ~/bin/gentle-cfg (status/sync/update, adaptado brew-safe del script de Carolina) — sin mezclar con brew.
 - Forks limpios: proyectos/work/gentleman/{gentle-ai,gentle-shell,engram,dot-whatsapp(dot-telegram)}
