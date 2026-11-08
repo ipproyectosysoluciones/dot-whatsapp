@@ -101,9 +101,16 @@ export function createMetaCloudTransport(options: {
 			return;
 		}
 		if (req.method === "POST" && url.pathname === "/webhook") {
+			const MAX_BODY = 1024 * 1024; // 1MB limit (Meta max ~5MB for WhatsApp webhooks)
 			let rawBody = "";
 			req.on("data", (chunk: Buffer) => {
 				rawBody += chunk.toString();
+				if (rawBody.length > MAX_BODY) {
+					log("webhook POST refused: payload too large");
+					res.writeHead(413);
+					res.end();
+					req.destroy();
+				}
 			});
 			req.on("end", () => {
 				if (!signatureValid(rawBody, req.headers["x-hub-signature-256"])) {
