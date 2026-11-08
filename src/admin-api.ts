@@ -181,8 +181,15 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 			req.on("error", reject);
 		});
 
+	const SECURITY_HEADERS = {
+		"content-type": "application/json",
+		"x-content-type-options": "nosniff",
+		"x-frame-options": "DENY",
+		"content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+	} as const;
+
 	const sendJson = (res: ServerResponse, status: number, body: unknown): void => {
-		res.writeHead(status, { "content-type": "application/json" });
+		res.writeHead(status, SECURITY_HEADERS);
 		res.end(JSON.stringify(body));
 	};
 
@@ -265,6 +272,7 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 			else options.allowlist.delete(number);
 			const numbers = [...options.allowlist];
 			options.onAllowlistChange?.(numbers);
+			log(`admin audit: allowlist_${action} masked=…${number.slice(-4)} ip=${clientIp}`);
 			sendJson(res, 200, { numbers: numbers.map((n) => maskNumber(n)) });
 			return;
 		}
@@ -275,6 +283,7 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 				return;
 			}
 			await restartTransport();
+			log(`admin audit: pair_start ip=${clientIp}`);
 			sendJson(res, 200, { ok: true });
 			return;
 		}
@@ -295,6 +304,7 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 				return;
 			}
 			await restartTransport();
+			log(`admin audit: pair_regenerate ip=${clientIp}`);
 			sendJson(res, 200, { ok: true });
 			return;
 		}
@@ -305,6 +315,7 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 				return;
 			}
 			await options.transport.stop();
+			log(`admin audit: pair_cancel ip=${clientIp}`);
 			sendJson(res, 200, { ok: true });
 			return;
 		}
@@ -325,12 +336,14 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 				}
 				results.push({ masked: maskNumber(number), ok });
 			}
+			log(`admin audit: verify sent=${results.filter(r => r.ok).length} failed=${results.filter(r => !r.ok).length} ip=${clientIp}`);
 			sendJson(res, 200, { results });
 			return;
 		}
 
 		if (req.method === "POST" && path === "/unpair") {
 			await options.unpair();
+			log(`admin audit: unpair ip=${clientIp}`);
 			sendJson(res, 200, { ok: true });
 			return;
 		}
