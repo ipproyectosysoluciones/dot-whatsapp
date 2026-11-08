@@ -59,6 +59,38 @@ export class DaemonClient {
 		return this.socket?.readyState === WebSocket.OPEN;
 	}
 
+	// L3: Application-level ping/pong to detect half-open connections faster
+	private pingTimer: NodeJS.Timeout | undefined;
+	private readonly PING_INTERVAL_MS = 30_000;
+	private readonly PONG_TIMEOUT_MS = 10_000;
+
+	private startPing(socket: WebSocket): void {
+		this.pingTimer = setInterval(() => {
+			if (socket.readyState !== WebSocket.OPEN) return;
+			const sent = Date.now();
+			let pongReceived = false;
+			const onPong = () => { pongReceived = true; };
+			socket.once("pong", onPong);
+			setTimeout(() => {
+				socket.off("pong", onPong);
+				if (!pongReceived) {
+					this.options.log?.("daemon ping timeout, terminating connection");
+					socket.terminate();
+				}
+			}, this.PONG_TIMEOUT_MS);
+			try {
+				socket.ping();
+			} catch {}
+		}, this.PING_INTERVAL_MS);
+	}
+
+	private stopPing(): void {
+		if (this.pingTimer !== undefined) {
+			clearInterval(this.pingTimer);
+			this.pingTimer = undefined;
+		}
+	}
+
 	private connect(): void {
 		if (this.stopped) return;
 		let token: string;
@@ -76,6 +108,7 @@ export class DaemonClient {
 		socket.on("open", () => {
 			socket.send(JSON.stringify({ type: "hello", token, protocol: PROTOCOL_VERSION }));
 			this.options.onConnection?.(true);
+			this.startPing(socket);
 		});
 		socket.on("message", (data) => {
 			let value: unknown;
@@ -95,6 +128,7 @@ export class DaemonClient {
 		socket.on("error", () => {});
 		socket.on("close", (code) => {
 			if (this.socket !== socket) return;
+			this.stopPing();
 			this.socket = undefined;
 			this.options.onConnection?.(false);
 			if (code === CloseCode.unauthorized) {
