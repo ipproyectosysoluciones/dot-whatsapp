@@ -64,8 +64,9 @@ jobs:
       - name: Validate merge commit
         run: |
           MERGE_MSG=$(git log -1 --pretty=%B)
-          if ! echo "$MERGE_MSG" | grep -qE '^(feat|fix|docs|chore|refactor|test|merge):'; then
-            echo "::error::Merge commit must follow Conventional Commits: <type>: <summary>"
+          # Accept both Conventional Commits and GitHub's default merge commit format
+          if ! echo "$MERGE_MSG" | grep -qE '^(feat|fix|docs|chore|refactor|test|merge):|^Merge pull request #[0-9]+ from '; then
+            echo "::error::Merge commit must follow Conventional Commits: <type>: <summary> or GitHub merge format"
             exit 1
           fi
 
