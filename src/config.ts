@@ -10,6 +10,8 @@ export interface MetaCloudConfig {
 	webhookHost: string;
 	graphUrl: string;
 	graphVersion: string;
+	/** Outbound Graph API request timeout in ms (default 10000). */
+	graphTimeoutMs?: number;
 }
 
 export interface Config {
@@ -97,6 +99,9 @@ export function loadConfig(env: Record<string, string | undefined>, home: string
 			webhookHost: env.DOT_WHATSAPP_META_WEBHOOK_HOST?.trim() || "127.0.0.1", // CHANGE to 0.0.0.0 ONLY behind TLS proxy
 			graphUrl: env.DOT_WHATSAPP_META_GRAPH_URL?.trim() || "https://graph.facebook.com",
 			graphVersion: env.DOT_WHATSAPP_META_GRAPH_VERSION?.trim() || "v21.0",
+			graphTimeoutMs: env.DOT_WHATSAPP_META_GRAPH_TIMEOUT_MS
+				? Number(env.DOT_WHATSAPP_META_GRAPH_TIMEOUT_MS)
+				: undefined,
 		};
 	}
 
