@@ -94,7 +94,7 @@ export function loadConfig(env: Record<string, string | undefined>, home: string
 			verifyToken,
 			appSecret,
 			webhookPort,
-			webhookHost: env.DOT_WHATSAPP_META_WEBHOOK_HOST?.trim() || "0.0.0.0",
+			webhookHost: env.DOT_WHATSAPP_META_WEBHOOK_HOST?.trim() || "127.0.0.1", // CHANGE to 0.0.0.0 ONLY behind TLS proxy
 			graphUrl: env.DOT_WHATSAPP_META_GRAPH_URL?.trim() || "https://graph.facebook.com",
 			graphVersion: env.DOT_WHATSAPP_META_GRAPH_VERSION?.trim() || "v21.0",
 		};

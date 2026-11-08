@@ -286,8 +286,13 @@ export function createAdminApi(options: AdminApiOptions): AdminApi {
 		async start() {
 			mkdirSync(dirname(options.tokenFile), { recursive: true, mode: 0o700 });
 			if (!statSyncSafe(options.tokenFile)) {
-				writeFileSync(options.tokenFile, `${randomBytes(32).toString("base64url")}\n`, { mode: 0o600 });
+				// Atomic create: O_CREAT | O_EXCL with 0o600 avoids race between write and chmod
+				const { open } = await import("node:fs/promises");
+				const fd = await open(options.tokenFile, "wx", 0o600);
+				await fd.writeFile(`${randomBytes(32).toString("base64url")}\n`);
+				await fd.close();
 			}
+			// Ensure perms even if file existed
 			chmodSync(options.tokenFile, 0o600);
 			server = createServer((req, res) => {
 				void handle(req, res).catch((error: unknown) => {
