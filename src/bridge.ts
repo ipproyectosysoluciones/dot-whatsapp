@@ -11,6 +11,11 @@ import { RateLimiter } from "./rate-limit.ts";
 /** WhatsApp's practical text message ceiling; we stay well under it. */
 export const WHATSAPP_TEXT_LIMIT = 4000;
 
+/** Sanitize user-controlled text for safe logging: strip newlines, ANSI, limit length. */
+function sanitizeForLog(text: string, maxLen = 200): string {
+	return text.replace(/[\r\n]/g, " ").replace(/\x1b\[[0-9;]*m/g, "").slice(0, maxLen);
+}
+
 /** Every message relayed to the daemon is tagged so the assistant knows its origin. */
 const SOURCE_LABEL = "📱 [dot-whatsapp] ";
 
@@ -99,6 +104,13 @@ export class Bridge {
 		}
 		this.lastFrom = from;
 		const trimmed = text.trim();
+
+		// M3: Defense-in-depth inbound message length limit (WhatsApp max is 4096)
+		if (trimmed.length > WHATSAPP_TEXT_LIMIT) {
+			this.options.log(`ignored: message too long (${trimmed.length} chars, max ${WHATSAPP_TEXT_LIMIT})`);
+			await this.reply(from, "Mensaje demasiado largo.");
+			return;
+		}
 		if (trimmed === "") return;
 		// Idempotency: Engram topic_key msg-<id> — a restart never replays nor double-replies.
 		const key = `msg-${id}`;
