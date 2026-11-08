@@ -87,65 +87,82 @@ body::before {
   display: inline-block;
   margin: 0 auto 32px;
 }
-.chat-bubble__tail {
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-top: 14px solid #2A1F28;
-}
-.chat-bubble__body {
-  position: relative;
-  background: #2A1F28;
-  border: 2px solid #F095C8;
-  border-radius: 24px;
-  padding: 24px;
-  min-width: 160px;
-  min-height: 160px;
+
+/* WhatsApp-style message bubble */
+.chat-message {
   display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+.chat-message.received {
+  align-self: flex-start;
+}
+.chat-message.sent {
+  align-self: flex-end;
+}
+
+.message-bubble {
+  background: #0D0A0F;
+  border: 1px solid rgba(246,239,243,0.08);
+  border-radius: 22px;
+  border-bottom-left-radius: 6px;
+  padding: 20px;
+  min-width: 120px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 
-    0 0 40px rgba(240, 149, 200, 0.3),
-    0 0 80px rgba(255, 45, 122, 0.15),
-    inset 0 0 60px rgba(255, 45, 122, 0.1);
+    0 2px 8px rgba(0,0,0,0.35),
+    0 4px 16px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(246,239,243,0.05);
+  position: relative;
 }
-.chat-bubble__body::before {
+
+.message-bubble::before {
   content: "";
   position: absolute;
-  inset: 4px;
+  inset: 2px;
   border-radius: 20px;
-  border: 1px solid #FF2D7A;
-  opacity: 0.3;
+  border-bottom-left-radius: 4px;
+  border: 1px solid rgba(244,56,136,0.15);
   pointer-events: none;
 }
+
+/* Official Gentle Rose (inline SVG per design brief) */
 .chat-bubble__rose {
-  width: 120px;
-  height: 120px;
-  filter: drop-shadow(0 0 30px #F095C8) drop-shadow(0 0 60px rgba(255,45,122,0.4));
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 0 20px #F095C8) drop-shadow(0 0 40px rgba(255, 45, 122, 0.3));
   animation: float 4s ease-in-out infinite;
 }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
-/* Status indicator (double check) */
-.chat-bubble__status {
-  position: absolute;
-  bottom: -8px;
-  right: -8px;
+/* Message time with status */
+.message-time {
   display: flex;
-  gap: 2px;
-  opacity: 0.7;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.7rem;
+  color: var(--text-dim);
 }
-.chat-bubble__check {
-  width: 16px;
-  height: 16px;
-  stroke: #F095C8;
-  stroke-width: 2.5;
+.status-read {
+  display: flex;
+  gap: 1px;
+  color: #53B778;
 }
+.status-read svg {
+  width: 14px;
+  height: 14px;
+}
+.time-text {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.hero h1 {
 
 .hero h1 { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 16px; background: linear-gradient(135deg, #F6EFF3 0%, #F095C8 50%, #FFD6E8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .hero-tagline { font-size: clamp(1.25rem, 3vw, 1.75rem); color: #D7A0B8; margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
@@ -273,39 +290,24 @@ body::before {
       </div>
 
       <div class="chat-bubble" role="img" aria-label="WhatsApp message bubble with Gentle rose">
-        <div class="chat-bubble__tail"></div>
-        <div class="chat-bubble__body">
-          <!-- Official Gentle Rose (inline SVG per design brief) -->
-          <svg class="chat-bubble__rose" viewBox="0 0 200 200" width="120" height="120" aria-hidden="true">
-            <defs>
-              <filter id="rose-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="4" result="blur"/>
-                <feMerge>
-                  <feMergeNode in="blur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-            <!-- Outer circle -->
-            <circle cx="100" cy="100" r="88" stroke="#F095C8" stroke-width="4" fill="none"/>
-            <!-- Petal path (neon glow) -->
-            <path d="M100 12 C100 12 16 36 16 100 C16 164 100 188 100 188 C100 188 184 164 184 100 C184 36 100 12 100 12 Z" 
-                  stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.7" filter="url(#glow)"/>
-            <!-- Filled rose center -->
-            <ellipse cx="100" cy="100" rx="36" ry="42" fill="#F095C8" opacity="0.5"/>
-            <!-- Core highlight -->
-            <ellipse cx="100" cy="100" rx="20" ry="24" fill="#FFD6E8" opacity="0.6"/>
-            <!-- Sparkle accents -->
-            <circle cx="65" cy="65" r="4" fill="#FFD6E8" opacity="0.9"/>
-            <circle cx="135" cy="65" r="3" fill="#FFD6E8" opacity="0.7"/>
-            <circle cx="60" cy="130" r="3" fill="#FFD6E8" opacity="0.6"/>
-            <circle cx="140" cy="130" r="2" fill="#FFD6E8" opacity="0.5"/>
-          </svg>
-        </div>
-        <!-- Status indicator (double check like WhatsApp) -->
-        <div class="chat-bubble__status" aria-label="Message delivered and read">
-          <svg class="chat-bubble__check" viewBox="0 0 24 24" fill="none" stroke="#F095C8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg>
-          <svg class="chat-bubble__check" viewBox="0 0 24 24" fill="none" stroke="#F095C8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg>
+        <!-- WhatsApp-style message bubble (received) -->
+        <div class="chat-message received">
+          <div class="message-bubble">
+            <!-- Official Gentle Rose from design brief (inline SVG) -->
+            <svg class="chat-bubble__rose" viewBox="0 0 100 100" width="100" height="100" aria-hidden="true" aria-label="Gentle rose">
+              <!-- Outer circle -->
+              <circle cx="50" cy="50" r="48" stroke="#F095C8" stroke-width="4" fill="none"/>
+              <!-- Petal path (neon glow) -->
+              <path d="M50 20 C50 20 30 35 30 50 C30 65 50 80 50 80 C50 80 70 65 70 50 C70 35 50 20 50 20 Z" 
+                    stroke="#FF2D7A" stroke-width="3" fill="none" opacity="0.6"/>
+              <!-- Filled rose center -->
+              <ellipse cx="50" cy="50" rx="18" ry="22" fill="#F095C8" opacity="0.3"/>
+            </svg>
+            <div class="message-time">
+              <span class="status-read"><svg viewBox="0 0 24 24" fill="none" stroke="#53B778" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="#53B778" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 6 9 15 4 10"/></svg></span>
+              <span class="time-text">Ahora</span>
+            </div>
+          </div>
         </div>
       </div>
 
