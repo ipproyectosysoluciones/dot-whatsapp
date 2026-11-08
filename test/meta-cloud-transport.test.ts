@@ -134,7 +134,7 @@ describe("meta-cloud config (fail closed)", () => {
 			verifyToken: VERIFY_TOKEN,
 			appSecret: APP_SECRET,
 			webhookPort: 4408,
-			webhookHost: "0.0.0.0",
+			webhookHost: "127.0.0.1",
 			graphUrl: "https://graph.facebook.com",
 			graphVersion: "v21.0",
 		});
